@@ -10,32 +10,11 @@ use rustc_serialize::hex::ToHex;
 
 use cryptopal::xor;
 
-
-fn read_data() -> Result<Vec<Vec<u8>>> {
-    let file = try!(File::open("./data/5.txt"));
-    let reader = BufReader::new(file);
-    let mut lines: Vec<Vec<u8>> = Vec::new();
-
-
-    for line in reader.lines() {
-        let line = try!(line);
-        lines.push(line.bytes().collect());
-    }
-
-    return Ok(lines);
-}
-
 fn main() {
-    let lines = match read_data() {
-        Ok(lines) => lines,
-        Err(e) => { panic!("Unable to load 5.txt: {:?}", e); }
-    };
+    let text = "Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal".as_bytes();
     let key = "ICE".as_bytes();
 
-    for line in lines {
-        let xored = xor::repeating_xor(&line, &key);
-        let hex = xored.to_hex();
-        println!("{}", String::from_utf8(line).unwrap());
-        println!("{}", hex);
-    }
+    let xored = xor::repeating_xor(&text, &key);
+    let hex = xored.to_hex();
+    println!("{}", hex);
 }
