@@ -28,3 +28,19 @@ fn character_score(c: u8) -> i32 {
     };
 }
 
+
+// calculate the hamming distance between two equal length slices of u8
+fn hamming(a: &[u8], b: &[u8]) -> u32 {
+    let pairs = a.iter().zip(b.iter());
+    return pairs.map ( |(a,b)|
+        (*a ^ *b).count_ones() as u32
+    ).fold(0, ( |sum, i| sum + i )) as u32;
+}
+
+#[test]
+fn test_hamming() {
+    let a = "this is a test".as_bytes();
+    let b = "wokka wokka!!!".as_bytes();
+
+    assert_eq!(hamming(&a, &b), 37);
+}
