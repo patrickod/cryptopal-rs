@@ -17,7 +17,7 @@ fn load_data() -> Result<String> {
         base64.push_str(&line);
     }
 
-    return Ok(base64);
+    return base64.frombase64();
 }
 
 fn main () {
@@ -25,10 +25,5 @@ fn main () {
         Ok(data) => data,
         Err(e) => { panic!("Unable to load data: {:?}", e); }
     };
-    let data = match base64.from_base64() {
-        Ok(d) => d,
-        Err(e) => { panic!("Unable to decode base64 data: {:?}", e); }
-    };
-
     println!("got data");
 }
