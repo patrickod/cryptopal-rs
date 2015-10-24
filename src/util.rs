@@ -1,4 +1,9 @@
 use std;
+use std::fs::File;
+use std::io::prelude::*;
+use std::io::{Result,BufReader};
+
+use rustc_serialize::hex::FromHex;
 
 pub fn english_score(s: &[u8]) -> i32 {
     return s.iter().map (|&c| character_score(c)).fold(0i32, |sum, c| sum + c as i32);
@@ -28,6 +33,18 @@ fn character_score(c: u8) -> i32 {
     };
 }
 
+pub fn load_data(path: &str) -> Result<Vec<Vec<u8>>> {
+    let file = try!(File::open(path));
+    let reader = BufReader::new(file);
+
+    let mut lines: Vec<Vec<u8>> = Vec::new();
+
+    for line in reader.lines() {
+        let line = try!(line);
+        lines.push(line.from_hex().unwrap());
+    }
+    return Ok(lines);
+}
 
 // calculate the hamming distance between two equal length slices of u8
 fn hamming(a: &[u8], b: &[u8]) -> u32 {

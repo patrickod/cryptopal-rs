@@ -1,15 +1,10 @@
 extern crate rustc_serialize;
 extern crate cryptopal;
 
-use std::io::prelude::*;
-use std::io::BufReader;
-use std::fs::File;
-use std::io::Result;
-
 use rustc_serialize::hex::{FromHex,ToHex};
 
 use cryptopal::xor::repeating_character_xor;
-use cryptopal::util::english_score;
+use cryptopal::util::{english_score, load_data};
 
 struct Candidate {
     score: i32,
@@ -17,23 +12,8 @@ struct Candidate {
     character: u8,
 }
 
-
-fn load_data() -> Result<Vec<Vec<u8>>> {
-    let path = "./data/4.txt";
-    let file = try!(File::open(path));
-    let reader = BufReader::new(file);
-
-    let mut lines: Vec<Vec<u8>> = Vec::new();
-
-    for line in reader.lines() {
-        let line = try!(line);
-        lines.push(line.from_hex().unwrap());
-    }
-    return Ok(lines);
-}
-
 fn main() {
-    let lines = match load_data() {
+    let lines = match load_data("./data/4.txt") {
         Ok(lines) => lines,
         Err(e) => { panic!("Unable to load data: {:?}", e); }
     };
