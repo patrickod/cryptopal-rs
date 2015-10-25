@@ -10,7 +10,7 @@ use cryptopal::xor::repeating_character_xor;
 
 struct Candidate {
     character: u8,
-    score: i32
+    score: u32
 }
 
 impl fmt::Debug for Candidate {

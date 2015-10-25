@@ -7,7 +7,7 @@ use cryptopal::xor::repeating_character_xor;
 use cryptopal::util::{english_score, load_data};
 
 struct Candidate {
-    score: i32,
+    score: u32,
     line: Vec<u8>,
     character: u8,
 }
