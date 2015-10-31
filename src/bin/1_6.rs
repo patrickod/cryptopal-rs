@@ -1,5 +1,6 @@
 extern crate cryptopal;
 extern crate rustc_serialize;
+extern crate itertools;
 
 use std::fs::File;
 use std::io::prelude::*;
@@ -8,6 +9,7 @@ use std::slice::Chunks;
 
 use rustc_serialize::base64::FromBase64;
 use rustc_serialize::hex::ToHex;
+use itertools::Itertools;
 
 use cryptopal::util::{english_score,hamming,transpose};
 use cryptopal::xor::{repeating_character_xor,repeating_xor};
@@ -35,35 +37,27 @@ fn load_data() -> Result<String> {
     return Ok(base64);
 }
 
-// Calculate the normalized edit distance for a given keysize
-// 1. Take the first two KEYSIZE slices of data
-// 2. Calculate their hamming distance
-// 3. Normalize by dividing by keysize
-fn edit_distance(data: &[u8], size: u8) -> u32 {
+fn normalized_edit_distance(data: &[u8], size: u8) -> u32 {
     let mut chunks = data.chunks(size as usize);
-    let first = chunks.next().unwrap();
-    let second = chunks.next().unwrap();
+    let mut scores: Vec<u32> = Vec::new();
+    let combinations = chunks.take(4).combinations();
 
-    let distance = hamming(&first, &second);
-    return distance / size as u32;
+    for pair in combinations {
+        scores.push(hamming(&pair.0, &pair.1));
+    }
+    let sum = scores.iter().fold(0, (|sum, i| sum + i)) as u32;
+
+    return (sum * 1000) / (size as u32);
 }
 
-fn compute_optimal_keysize() -> u8 {
-    let base64 = match load_data() {
-        Ok(data) => data,
-        Err(e) => { panic!("Unable to load data: {:?}", e); }
-    };
-    let data = match base64.from_base64() {
-        Ok(d) => d,
-        Err(e) => { panic!("Unable to decode base64 data: {:?}", e); }
-    };
+fn compute_optimal_keysize(data: &[u8]) -> u8 {
     let mut keysizes: Vec<KeySize> = Vec::new();
 
     // Compute keysize distances
     for keysize in 2u8..40u8 {
         keysizes.push(KeySize {
             size: keysize,
-            score: edit_distance(&data, keysize)
+            score: normalized_edit_distance(&data, keysize)
         });
     }
     // Sort by keysize ascending
@@ -77,7 +71,7 @@ fn compute_optimal_keysize() -> u8 {
 fn main () {
     let base64 = load_data().unwrap();
     let data = base64.from_base64().unwrap();
-    let k = compute_optimal_keysize();
+    let k = compute_optimal_keysize(&data);
 
     let chunks = data.chunks(k as usize);
     let transposed = transpose(&chunks, k);
