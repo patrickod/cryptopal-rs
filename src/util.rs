@@ -96,7 +96,6 @@ fn test_hamming() {
     assert_eq!(hamming(&a, &b), 37);
 }
 
-
 #[test]
 fn test_transpose() {
     let original = vec![1, 2, 3, 4, 5];
