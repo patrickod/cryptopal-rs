@@ -47,7 +47,20 @@ fn character_score(c: u8) -> u32 {
     }
 }
 
-pub fn load_data(path: &str) -> Result<Vec<Vec<u8>>> {
+pub fn load_data(path: &str) -> Result<Vec<u8>> {
+    let file = File::open(path).unwrap();
+    let reader = BufReader::new(file);
+    let mut out: Vec<u8> = Vec::new();
+
+    for line in reader.lines() {
+        let line = try!(line);
+        out.extend(line.into_bytes());
+    }
+
+    return Ok(out);
+}
+
+pub fn load_data_lines(path: &str) -> Result<Vec<Vec<u8>>> {
     let file = try!(File::open(path));
     let reader = BufReader::new(file);
 
@@ -58,6 +71,19 @@ pub fn load_data(path: &str) -> Result<Vec<Vec<u8>>> {
         lines.push(line.from_hex().unwrap());
     }
     return Ok(lines);
+}
+
+pub fn load_data_single_line() -> Result<String> {
+    let file = try!(File::open("./data/6.txt"));
+    let mut base64: String = "".to_string();
+    let reader = BufReader::new(file);
+
+    for line in reader.lines() {
+        let line = try!(line);
+        base64.push_str(&line);
+    }
+
+    return Ok(base64);
 }
 
 // calculate the hamming distance between two equal length slices of u8

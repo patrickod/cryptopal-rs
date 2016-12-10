@@ -1,10 +1,10 @@
 extern crate rustc_serialize;
 extern crate cryptopal;
 
-use rustc_serialize::hex::{FromHex,ToHex};
+use rustc_serialize::hex::ToHex;
 
 use cryptopal::xor::repeating_character_xor;
-use cryptopal::util::{english_score, load_data};
+use cryptopal::util::{english_score, load_data_lines};
 
 struct Candidate {
     score: u32,
@@ -13,7 +13,7 @@ struct Candidate {
 }
 
 fn main() {
-    let lines = match load_data("./data/4.txt") {
+    let lines = match load_data_lines("./data/4.txt") {
         Ok(lines) => lines,
         Err(e) => { panic!("Unable to load data: {:?}", e); }
     };

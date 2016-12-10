@@ -2,7 +2,7 @@ extern crate openssl;
 extern crate rustc_serialize;
 extern crate cryptopal;
 
-use cryptopal::util::load_data;
+use cryptopal::util::load_data_lines;
 
 use std::collections::HashMap;
 
@@ -27,7 +27,7 @@ fn has_duplicate_blocks(line: &[u8]) -> bool {
 }
 
 fn main() {
-    let lines = load_data("./data/8.txt").expect("Unable to load data 8.txt");
+    let lines = load_data_lines("./data/8.txt").expect("Unable to load data 8.txt");
     let mut lines_with_duplicates = lines.iter().filter(|l| has_duplicate_blocks(l));
     println!("{}", lines_with_duplicates.nth(0).expect("No duplicates found").to_hex());
 }

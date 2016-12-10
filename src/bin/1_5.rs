@@ -1,11 +1,6 @@
 extern crate cryptopal;
 extern crate rustc_serialize;
 
-use std::fs::File;
-use std::io::BufReader;
-use std::io::Result;
-use std::io::prelude::*;
-
 use rustc_serialize::hex::ToHex;
 
 use cryptopal::xor;

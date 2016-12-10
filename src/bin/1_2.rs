@@ -1,7 +1,5 @@
 extern crate rustc_serialize;
 
-use std::ops::BitXor;
-
 use rustc_serialize::hex::{FromHex,ToHex};
 
 pub fn xor(a: &[u8], b: &[u8]) -> Vec<u8> {

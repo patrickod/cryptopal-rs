@@ -2,16 +2,10 @@ extern crate cryptopal;
 extern crate rustc_serialize;
 extern crate itertools;
 
-use std::fs::File;
-use std::io::prelude::*;
-use std::io::{Result,BufReader};
-use std::slice::Chunks;
-
 use rustc_serialize::base64::FromBase64;
-use rustc_serialize::hex::ToHex;
 use itertools::Itertools;
 
-use cryptopal::util::{english_score,hamming,transpose};
+use cryptopal::util::{english_score,hamming,transpose,load_data_single_line};
 use cryptopal::xor::{repeating_character_xor,repeating_xor};
 
 struct KeySize {
@@ -24,21 +18,8 @@ struct Candidate {
     character: u8,
 }
 
-fn load_data() -> Result<String> {
-    let file = try!(File::open("./data/6.txt"));
-    let mut base64: String = "".to_string();
-    let reader = BufReader::new(file);
-
-    for line in reader.lines() {
-        let line = try!(line);
-        base64.push_str(&line);
-    }
-
-    return Ok(base64);
-}
-
 fn normalized_edit_distance(data: &[u8], size: u8) -> u32 {
-    let mut chunks = data.chunks(size as usize);
+    let chunks = data.chunks(size as usize);
     let mut scores: Vec<u32> = Vec::new();
     let combinations = chunks.take(4).combinations();
 
@@ -69,7 +50,7 @@ fn compute_optimal_keysize(data: &[u8]) -> u8 {
 }
 
 fn main () {
-    let base64 = load_data().unwrap();
+    let base64 = load_data_single_line().unwrap();
     let data = base64.from_base64().unwrap();
     let k = compute_optimal_keysize(&data);
 
