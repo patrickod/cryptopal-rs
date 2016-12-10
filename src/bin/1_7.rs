@@ -6,10 +6,10 @@ use std::io::prelude::*;
 use std::io::{Result,BufReader};
 
 use rustc_serialize::base64::FromBase64;
-use openssl::crypto::symm::{Crypter,Type,Mode};
+use openssl::symm::{Crypter,Cipher,Mode};
 
 fn load_data(path: &str) -> Result<Vec<u8>> {
-    let file = try!(File::open(path));
+    let file = File::open(path).unwrap();
     let reader = BufReader::new(file);
     let mut out: Vec<u8> = Vec::new();
 
@@ -33,14 +33,16 @@ fn main () {
 
     // initalize the key and openssl crypter
     let k = "YELLOW SUBMARINE".to_string().into_bytes();
-    let c = Crypter::new(Type::AES_128_ECB);
+    let mut c = Crypter::new(Cipher::aes_128_ecb(), Mode::Decrypt, &k, None).unwrap();
+    // let c = Crypter::new(Type::AES_128_ECB);
 
-    c.init(Mode::Decrypt, &k, &[]);
+    // c.init(Mode::Decrypt, &k, &[]);
     c.pad(false);
 
     // Decrypt and finish out last block
-    let mut decrypted = c.update(&data);
-    decrypted.extend(c.finalize().into_iter());
+    let mut decrypted: Vec<u8> = vec![0; data.len() + 128];
+    c.update(&data, decrypted.as_mut_slice()).unwrap();
+    c.finalize(decrypted.as_mut_slice());
 
     println!("{}", String::from_utf8(decrypted).unwrap());
 }
