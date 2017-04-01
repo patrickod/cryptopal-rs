@@ -50,7 +50,7 @@ fn compute_optimal_keysize(data: &[u8]) -> u8 {
 }
 
 fn main () {
-    let base64 = load_data_single_line().unwrap();
+    let base64 = load_data_single_line("data/6.txt").unwrap();
     let data = base64.from_base64().unwrap();
     let k = compute_optimal_keysize(&data);
 

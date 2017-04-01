@@ -73,17 +73,17 @@ pub fn load_data_lines(path: &str) -> Result<Vec<Vec<u8>>> {
     return Ok(lines);
 }
 
-pub fn load_data_single_line() -> Result<String> {
-    let file = try!(File::open("./data/6.txt"));
-    let mut base64: String = "".to_string();
+pub fn load_data_single_line(path: &str) -> Result<String> {
+    let file = try!(File::open(path));
+    let mut out: String = "".to_string();
     let reader = BufReader::new(file);
 
     for line in reader.lines() {
-        let line = try!(line);
-        base64.push_str(&line);
+        let line = line.expect("Unable to read line");
+        out.push_str(&line);
     }
 
-    return Ok(base64);
+    return Ok(out);
 }
 
 // calculate the hamming distance between two equal length slices of u8
