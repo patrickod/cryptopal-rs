@@ -10,7 +10,7 @@ use crypto::{symmetriccipher, buffer, aes, blockmodes};
 use crypto::buffer::{ReadBuffer, WriteBuffer, BufferResult};
 
 use cryptopal::util::load_data_single_line;
-use cryptopal::xor::fixed_xor_mut;
+use cryptopal::xor::fixed_xor;
 
 fn main() {
     let base64 = load_data_single_line("data/10.txt").expect("Unable to load 10.txt");
@@ -24,16 +24,24 @@ fn main() {
     let mut chunks = data.chunks(16 as usize);
     let first = chunks.next().expect("Unable to read first 16 bytes from ciphertext");
 
-    decrypt_block(&iv, first, &key, block_output.as_mut_slice());
+    // decrypt_block(&iv, first, &key, block_output.as_mut_slice());
+    // plaintext.extend(block_output[1..16].to_owned());
 
-    // for chunk in chunks {
-    //     let _ = encrypt_block(iv.as_slice(), chunk, &key, block_output.as_mut_slice());
-    //     plaintext.extend(block_output[1..16].to_owned());
-    //     println!("output: {:?}", plaintext);
-    // }
+    // let second = chunks.next().expect("Unable to read second 16 bytes from ciphertext");
+
+    // decrypt_block(
+    //     &plaintext[(plaintext.len() - 16)..],
+    //     second,
+    //     &key,
+    //     block_output.as_mut_slice()
+    // );
+
+    // plaintext.extend(block_output[..16].to_owned());
+
+    // println!("Output: {}", String::from_utf8(plaintext[..32].to_owned()).expect("Unable to decode ASCII bytes"));
 }
 
-fn decrypt_block(prior: &[u8], block: &[u8], key: &[u8], output: &mut [u8]) {
+pub fn decrypt_block(prior: &[u8], block: &[u8], key: &[u8]) -> Vec<u8> {
     let mut crypter = Crypter::new(
         Cipher::aes_128_ecb(),
         Mode::Decrypt,
@@ -42,10 +50,11 @@ fn decrypt_block(prior: &[u8], block: &[u8], key: &[u8], output: &mut [u8]) {
     ).expect("Unable to initialize crypter");
     crypter.pad(false);
 
-    let mut count = crypter.update(block, output).expect("Unable to decrypt block");
-    count = crypter.finalize(output).expect("Unable to finalize decryption");
+    let mut output = vec![0; key.len() + block.len()];
+    let mut count = crypter.update(block, &mut output).expect("Unable to decrypt block");
+    count = crypter.finalize(&mut output).expect("Unable to finalize decryption");
 
-    fixed_xor_mut(output, prior);
+    return fixed_xor(output.as_slice(), prior).to_owned();
 }
 
 #[cfg(test)]
@@ -55,29 +64,16 @@ mod test {
 
     use rustc_serialize::hex::FromHex;
     use openssl::symm::{Crypter,Cipher,Mode};
+    use decrypt_block;
 
     #[test]
     fn test_decrypt_block() {
         let block = "091230aade3eb330dbaa4358f88d2a6c".from_hex().expect("Unable to decode block");
         let iv = "0000000000000000".as_bytes();
         let key = "YELLOW SUBMARINE".as_bytes();
-        let mut output = vec![0u8; 32];
         let expected = "49276d206261636b20616e642049276d".from_hex().expect("Unable to decode expected result");
 
-        let mut crypter = Crypter::new(
-            Cipher::aes_128_ecb(),
-            Mode::Decrypt,
-            key,
-            Some(iv)
-        ).expect("Unable to initialize crypter");
-        crypter.pad(false);
-
-        crypter.update(block.as_slice(), output.as_mut_slice()).expect("Unable to decrypt block");
-        crypter.finalize(output.as_mut_slice()).expect("Unable to finalize");
-
-        // TODO there's gotta be a better way to take the first 16 bytes
-        // let mut output_chunks = output.chunks(16 as usize);
-        // let first = output_chunks.next().expect("Unable to read first 16 bytes from ciphertext");
+        let output = decrypt_block(&iv, &block, &key);
         assert_eq!(output[..16].to_owned(), expected);
     }
 }
