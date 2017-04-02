@@ -24,14 +24,7 @@ fn main() {
     let mut chunks = data.chunks(16 as usize);
     let first = chunks.next().expect("Unable to read first 16 bytes from ciphertext");
 
-    println!("IV: {:?}
-Key: {:?}
-First: {:?}", iv.to_hex(), key.to_hex(), first.to_hex());
-
     decrypt_block(&iv, first, &key, block_output.as_mut_slice());
-
-
-    println!("{}", block_output[1..16].to_owned().to_hex());
 
     // for chunk in chunks {
     //     let _ = encrypt_block(iv.as_slice(), chunk, &key, block_output.as_mut_slice());
@@ -51,8 +44,6 @@ fn decrypt_block(prior: &[u8], block: &[u8], key: &[u8], output: &mut [u8]) {
 
     let mut count = crypter.update(block, output).expect("Unable to decrypt block");
     count = crypter.finalize(output).expect("Unable to finalize decryption");
-
-    println!("Pre-xor: {}", output[1..16].to_owned().to_hex());
 
     fixed_xor_mut(output, prior);
 }
@@ -85,8 +76,8 @@ mod test {
         crypter.finalize(output.as_mut_slice()).expect("Unable to finalize");
 
         // TODO there's gotta be a better way to take the first 16 bytes
-        let mut output_chunks = output.chunks(16 as usize);
-        let first = output_chunks.next().expect("Unable to read first 16 bytes from ciphertext");
-        assert_eq!(first.to_owned(), expected);
+        // let mut output_chunks = output.chunks(16 as usize);
+        // let first = output_chunks.next().expect("Unable to read first 16 bytes from ciphertext");
+        assert_eq!(output[..16].to_owned(), expected);
     }
 }
