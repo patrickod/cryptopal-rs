@@ -12,6 +12,13 @@ pub fn fixed_xor(a: &[u8], b: &[u8]) -> Vec<u8> {
     return a.iter().zip(b.iter()).map ( |(x, y)| *x ^ *y ).collect()
 }
 
+pub fn fixed_xor_mut(a: &mut[u8], b: &[u8]) {
+    for tup in a.iter_mut().zip(b.iter()) {
+        let(x, y) = tup;
+        *x = *x ^ *y
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use xor::*;
@@ -34,5 +41,15 @@ mod tests {
 
         let r = fixed_xor(&a, &b);
         assert_eq!(c, r);
+    }
+
+    #[test]
+    fn test_fixed_xor_mut() {
+        let mut a = "1c0111001f010100061a024b53535009181c".from_hex().unwrap();
+        let b = "686974207468652062756c6c277320657965".from_hex().unwrap();
+        let c = "746865206b696420646f6e277420706c6179".from_hex().unwrap();
+
+        fixed_xor_mut(&mut a, &b);
+        assert_eq!(a, c.as_slice());
     }
 }

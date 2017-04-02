@@ -13,4 +13,8 @@ fn test_pad() {
     let input = "TEST".as_bytes();
     let output = pad(input, 8);
     assert_eq!(output, [84, 69, 83, 84, 4, 4, 4, 4]);
+
+    let input_exact = "TESTTEST".as_bytes();
+    let output_exact = pad(input_exact, 8);
+    assert_eq!(output_exact, [84, 69, 83, 84, 84, 69, 83, 84]);
 }
