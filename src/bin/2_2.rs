@@ -69,7 +69,7 @@ mod test {
     #[test]
     fn test_decrypt_block() {
         let block = "091230aade3eb330dbaa4358f88d2a6c".from_hex().expect("Unable to decode block");
-        let iv = "0000000000000000".as_bytes();
+        let iv = vec![0x00; 16];
         let key = "YELLOW SUBMARINE".as_bytes();
         let expected = "49276d206261636b20616e642049276d".from_hex().expect("Unable to decode expected result");
 
