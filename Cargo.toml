@@ -6,5 +6,5 @@ authors = ["Patrick O'Doherty <p@trickod.com>"]
 [dependencies]
 rustc-serialize = "0.3"
 itertools = "0.4"
-openssl = "0.9"
+openssl = "^0.10"
 rust-crypto = "^0.2"
