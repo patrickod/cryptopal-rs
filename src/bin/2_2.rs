@@ -2,46 +2,32 @@ extern crate cryptopal;
 extern crate openssl;
 extern crate rustc_serialize;
 extern crate crypto;
+extern crate itertools;
 
 use openssl::symm::{Crypter,Cipher,Mode};
 use rustc_serialize::base64::FromBase64;
-use rustc_serialize::hex::ToHex;
-use crypto::{symmetriccipher, buffer, aes, blockmodes};
-use crypto::buffer::{ReadBuffer, WriteBuffer, BufferResult};
 
-use cryptopal::util::load_data_single_line;
-use cryptopal::xor::fixed_xor;
+use cryptopal::util::load_data;
+use cryptopal::xor::xor;
 
 fn main() {
-    let base64 = load_data_single_line("data/10.txt").expect("Unable to load 10.txt");
+    let base64 = String::from_utf8(load_data("data/10.txt")).expect("bad UTF8");
     let data = base64.from_base64().expect("Unable to b64decode data");
     let key = "YELLOW SUBMARINE".as_bytes();
+
     let iv = vec![0x00; 16];
+    let mut chunked_data = data.chunks(16 as usize);
+    let first = chunked_data.next().expect("no data");
 
-    let mut block_output = vec![0u8; 32];
-    let mut plaintext: Vec<u8> = vec![];
+    let mut plaintext: Vec<u8> = xor(&iv, &decrypt_block(first, &key));
+    chunked_data.map(|c| decrypt_block(c, &key)).zip(data.chunks(16 as usize)).for_each(
+        |(a,b)| plaintext.extend(xor(&a, &b))
+    );
 
-    let mut chunks = data.chunks(16 as usize);
-    let first = chunks.next().expect("Unable to read first 16 bytes from ciphertext");
-
-    // decrypt_block(&iv, first, &key, block_output.as_mut_slice());
-    // plaintext.extend(block_output[1..16].to_owned());
-
-    // let second = chunks.next().expect("Unable to read second 16 bytes from ciphertext");
-
-    // decrypt_block(
-    //     &plaintext[(plaintext.len() - 16)..],
-    //     second,
-    //     &key,
-    //     block_output.as_mut_slice()
-    // );
-
-    // plaintext.extend(block_output[..16].to_owned());
-
-    // println!("Output: {}", String::from_utf8(plaintext[..32].to_owned()).expect("Unable to decode ASCII bytes"));
+    println!("{}", String::from_utf8(plaintext).expect("bad UTF8"));
 }
 
-pub fn decrypt_block(prior: &[u8], block: &[u8], key: &[u8]) -> Vec<u8> {
+pub fn decrypt_block(block: &[u8], key: &[u8]) -> Vec<u8> {
     let mut crypter = Crypter::new(
         Cipher::aes_128_ecb(),
         Mode::Decrypt,
@@ -50,11 +36,16 @@ pub fn decrypt_block(prior: &[u8], block: &[u8], key: &[u8]) -> Vec<u8> {
     ).expect("Unable to initialize crypter");
     crypter.pad(false);
 
+    // output needs to be at least >= input + block.len() otherwise we panic.
+    // we only want the first block bytes later anyway.
     let mut output = vec![0; key.len() + block.len()];
-    let mut count = crypter.update(block, &mut output).expect("Unable to decrypt block");
-    count = crypter.finalize(&mut output).expect("Unable to finalize decryption");
+    crypter.update(block, &mut output).expect("Unable to decrypt block");
+    crypter.finalize(&mut output).expect("Unable to finalize decryption");
+    output[..block.len()].to_owned()
+}
 
-    return fixed_xor(output.as_slice(), prior).to_owned();
+pub fn encrypt_block(block: &[u8], key: &[u8]) -> Vec<u8> {
+    let mut crypter = Crypter::new
 }
 
 #[cfg(test)]
@@ -63,8 +54,8 @@ mod test {
     extern crate openssl;
 
     use rustc_serialize::hex::FromHex;
-    use openssl::symm::{Crypter,Cipher,Mode};
     use decrypt_block;
+    use cryptopal::xor::xor;
 
     #[test]
     fn test_decrypt_block() {
@@ -73,7 +64,7 @@ mod test {
         let key = "YELLOW SUBMARINE".as_bytes();
         let expected = "49276d206261636b20616e642049276d".from_hex().expect("Unable to decode expected result");
 
-        let output = decrypt_block(&iv, &block, &key);
+        let output = xor(&iv, decrypt_block(&block, &key).as_slice());
         assert_eq!(output[..16].to_owned(), expected);
     }
 }
