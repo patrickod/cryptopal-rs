@@ -13,11 +13,7 @@ struct Candidate {
 }
 
 fn main() {
-    let lines = match load_data_lines("./data/4.txt") {
-        Ok(lines) => lines,
-        Err(e) => { panic!("Unable to load data: {:?}", e); }
-    };
-
+    let lines = load_data_lines("./data/4.txt");
     let mut candidates: Vec<Candidate> = Vec::new();
 
     for line in lines {

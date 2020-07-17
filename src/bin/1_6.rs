@@ -5,7 +5,7 @@ extern crate itertools;
 use rustc_serialize::base64::FromBase64;
 use itertools::Itertools;
 
-use cryptopal::util::{english_score,hamming,transpose,load_data_single_line};
+use cryptopal::util::{english_score,hamming,transpose,load_data};
 use cryptopal::xor::{repeating_character_xor,repeating_xor};
 
 struct KeySize {
@@ -21,12 +21,12 @@ struct Candidate {
 fn normalized_edit_distance(data: &[u8], size: u8) -> u32 {
     let chunks = data.chunks(size as usize);
     let mut scores: Vec<u32> = Vec::new();
-    let combinations = chunks.take(4).combinations();
+    let combinations = chunks.take(4).combinations(2);
 
     for pair in combinations {
-        scores.push(hamming(&pair.0, &pair.1));
+        scores.push(hamming(&pair[0], &pair[1]));
     }
-    let sum = scores.iter().fold(0, (|sum, i| sum + i)) as u32;
+    let sum = scores.iter().fold(0, |sum, i| sum + i) as u32;
 
     return (sum * 1000) / (size as u32);
 }
@@ -50,7 +50,7 @@ fn compute_optimal_keysize(data: &[u8]) -> u8 {
 }
 
 fn main () {
-    let base64 = load_data_single_line("data/6.txt").unwrap();
+    let base64 = String::from_utf8(load_data("data/6.txt")).expect("bad UTF8");
     let data = base64.from_base64().unwrap();
     let k = compute_optimal_keysize(&data);
 

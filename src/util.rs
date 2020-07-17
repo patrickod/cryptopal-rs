@@ -1,7 +1,7 @@
 use std;
 use std::fs::File;
 use std::io::prelude::*;
-use std::io::{Result,BufReader};
+use std::io::BufReader;
 use std::slice::Chunks;
 
 use rustc_serialize::hex::FromHex;
@@ -47,43 +47,29 @@ fn character_score(c: u8) -> u32 {
     }
 }
 
-pub fn load_data(path: &str) -> Result<Vec<u8>> {
+pub fn load_data(path: &str) -> Vec<u8> {
     let file = File::open(path).unwrap();
     let reader = BufReader::new(file);
     let mut out: Vec<u8> = Vec::new();
 
     for line in reader.lines() {
-        let line = try!(line);
-        out.extend(line.into_bytes());
+        out.extend(line.unwrap().into_bytes());
     }
 
-    return Ok(out);
+    out
 }
 
-pub fn load_data_lines(path: &str) -> Result<Vec<Vec<u8>>> {
-    let file = try!(File::open(path));
+pub fn load_data_lines(path: &str) -> Vec<Vec<u8>> {
+    let file = File::open(path).expect("data not found");
     let reader = BufReader::new(file);
 
     let mut lines: Vec<Vec<u8>> = Vec::new();
 
     for line in reader.lines() {
-        let line = try!(line);
-        lines.push(line.from_hex().unwrap());
-    }
-    return Ok(lines);
-}
-
-pub fn load_data_single_line(path: &str) -> Result<String> {
-    let file = try!(File::open(path));
-    let mut out: String = "".to_string();
-    let reader = BufReader::new(file);
-
-    for line in reader.lines() {
-        let line = line.expect("Unable to read line");
-        out.push_str(&line);
+        lines.push(line.unwrap().from_hex().unwrap());
     }
 
-    return Ok(out);
+    lines
 }
 
 // calculate the hamming distance between two equal length slices of u8
@@ -91,7 +77,7 @@ pub fn hamming(a: &[u8], b: &[u8]) -> u32 {
     let pairs = a.iter().zip(b.iter());
     return pairs.map ( |(a,b)|
         (*a ^ *b).count_ones() as u32
-    ).fold(0, ( |sum, i| sum + i )) as u32;
+    ).fold(0, |sum, i| sum + i) as u32;
 }
 
 pub fn transpose(chunks: &Chunks<u8>, size: u8) -> Vec<Vec<u8>> {

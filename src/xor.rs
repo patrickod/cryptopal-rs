@@ -8,7 +8,7 @@ pub fn repeating_xor(a: &[u8], b: &[u8]) -> Vec<u8> {
     return cycle.zip(a.iter()).map ( |(a, b)| *a ^ *b ).collect();
 }
 
-pub fn fixed_xor(a: &[u8], b: &[u8]) -> Vec<u8> {
+pub fn xor(a: &[u8], b: &[u8]) -> Vec<u8> {
     return a.iter().zip(b.iter()).map ( |(x, y)| *x ^ *y ).collect()
 }
 
@@ -27,12 +27,12 @@ mod tests {
     }
 
     #[test]
-    fn test_fixed_xor() {
+    fn test_xor() {
         let a = "1c0111001f010100061a024b53535009181c".from_hex().unwrap();
         let b = "686974207468652062756c6c277320657965".from_hex().unwrap();
         let c = "746865206b696420646f6e277420706c6179".from_hex().unwrap();
 
-        let r = fixed_xor(&a, &b);
+        let r = xor(&a, &b);
         assert_eq!(c, r);
     }
 }
