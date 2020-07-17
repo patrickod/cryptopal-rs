@@ -44,10 +44,6 @@ pub fn decrypt_block(block: &[u8], key: &[u8]) -> Vec<u8> {
     output[..block.len()].to_owned()
 }
 
-pub fn encrypt_block(block: &[u8], key: &[u8]) -> Vec<u8> {
-    let mut crypter = Crypter::new
-}
-
 #[cfg(test)]
 mod test {
     extern crate rustc_serialize;

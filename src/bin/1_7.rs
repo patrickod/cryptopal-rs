@@ -16,9 +16,6 @@ fn main () {
     // initalize the key and openssl crypter
     let k = "YELLOW SUBMARINE".to_string().into_bytes();
     let mut c = Crypter::new(Cipher::aes_128_ecb(), Mode::Decrypt, &k, None).unwrap();
-    // let c = Crypter::new(Type::AES_128_ECB);
-
-    // c.init(Mode::Decrypt, &k, &[]);
     c.pad(false);
 
     // Decrypt and finish out last block
