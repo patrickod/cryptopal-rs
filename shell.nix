@@ -1,15 +1,30 @@
 let
-  moz_overlay = import (builtins.fetchTarball https://github.com/mozilla/nixpkgs-mozilla/archive/master.tar.gz);
-  nixpkgs = import <nixpkgs> { overlays = [ moz_overlay ]; };
-in
-  with nixpkgs;
-  stdenv.mkDerivation {
-    name = "moz_overlay_shell";
-    buildInputs = [
-      nixpkgs.latest.rustChannels.stable.rust
+  rust-version = "1.45.0";
 
-      # system library dependencies for cargo
-      pkgconfig
-      openssl
-    ];
+  nixpkgs = fetchGit {
+    url = "https://github.com/NixOS/nixpkgs.git";
+    rev = "5272327b81ed355bbed5659b8d303cf2979b6953";
+    ref = "release-20.03";
+  };
+
+  mozilla-overlay =
+    import (builtins.fetchTarball https://github.com/mozilla/nixpkgs-mozilla/archive/master.tar.gz);
+
+  pkgs = import nixpkgs {
+    overlays = [ mozilla-overlay ];
+  };
+
+  rust-channel = pkgs.rustChannelOf {
+    channel = rust-version;
+  };
+
+  rust = rust-channel.rust.override {
+    extensions = [ "rust-src" ];
+  };
+
+  cargo = rust-channel.cargo;
+in
+  pkgs.mkShell {
+    name = "rust-dev";
+    buildInputs = [ rust cargo pkgs.openssl pkgs.pkgconfig ];
   }
