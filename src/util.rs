@@ -3,6 +3,7 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::io::BufReader;
 use std::slice::Chunks;
+use std::collections::HashMap;
 
 use rustc_serialize::hex::FromHex;
 
@@ -100,6 +101,24 @@ pub fn transpose(chunks: &Chunks<u8>, size: u8) -> Vec<Vec<u8>> {
     return results;
 }
 
+pub fn has_duplicate_blocks(line: &[u8]) -> bool {
+    let blocks = line.chunks(::BLOCK_SIZE.into());
+    let mut frequency: HashMap<&[u8], u8> = HashMap::new();
+
+    for block in blocks {
+        let ref mut freq = &mut frequency;
+        let count = freq.entry(block).or_insert(0);
+        *count += 1;
+    }
+
+    for (_, count) in frequency.iter() {
+        if *count > 1 {
+            return true;
+        }
+    }
+    return false;
+}
+
 #[test]
 fn test_hamming() {
     let a = "this is a test".as_bytes();
@@ -119,5 +138,10 @@ fn test_transpose() {
     assert_eq!(iter.next().unwrap(), &[1, 3, 5]);
     assert_eq!(iter.next().unwrap(), &[2, 4]);
     assert_eq!(iter.next(), None);
+}
 
+#[test]
+fn test_has_duplicate_blocks() {
+    assert_eq!(false, has_duplicate_blocks(&[vec![0; 16], vec![1; 16]].concat()));
+    assert_eq!(true, has_duplicate_blocks(&[vec![0; 16], vec![0; 16]].concat()));
 }

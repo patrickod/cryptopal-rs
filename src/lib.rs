@@ -1,5 +1,23 @@
+#[macro_use]
+extern crate data_encoding_macro;
+extern crate aes;
+extern crate rand;
+extern crate block_modes;
 extern crate rustc_serialize;
 
 pub mod xor;
 pub mod util;
 pub mod pkcs;
+pub mod oracle;
+
+pub const BLOCK_SIZE: u8 = 16;
+pub type AesKey = [u8; 16];
+
+use rand::prelude::*;
+
+pub fn random_key() -> AesKey {
+    let mut key: AesKey = [0u8; 16];
+    let mut rng = rand::thread_rng();
+    rng.fill(&mut key);
+    key.clone()
+}
