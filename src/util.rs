@@ -101,8 +101,8 @@ pub fn transpose(chunks: &Chunks<u8>, size: u8) -> Vec<Vec<u8>> {
     return results;
 }
 
-pub fn has_duplicate_blocks(line: &[u8]) -> bool {
-    let blocks = line.chunks(::BLOCK_SIZE.into());
+pub fn has_duplicate_blocks(bytes: &[u8]) -> bool {
+    let blocks = bytes.chunks(::BLOCK_SIZE.into());
     let mut frequency: HashMap<&[u8], u8> = HashMap::new();
 
     for block in blocks {
@@ -144,4 +144,5 @@ fn test_transpose() {
 fn test_has_duplicate_blocks() {
     assert_eq!(false, has_duplicate_blocks(&[vec![0; 16], vec![1; 16]].concat()));
     assert_eq!(true, has_duplicate_blocks(&[vec![0; 16], vec![0; 16]].concat()));
+    assert_eq!(false, has_duplicate_blocks(&[vec![0; 16], vec![1; 16], vec![2; 16]].concat()));
 }
