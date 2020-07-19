@@ -1,20 +1,26 @@
 use std;
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::BufReader;
 use std::slice::Chunks;
-use std::collections::HashMap;
 
+use oracle::Oracle;
 use rustc_serialize::hex::FromHex;
 
 pub fn english_score(s: &[u8]) -> u32 {
-    return s.iter().map (|&c| character_score(c)).fold(0u32, |sum, c| sum + c as u32);
+    return s
+        .iter()
+        .map(|&c| character_score(c))
+        .fold(0u32, |sum, c| sum + c as u32);
 }
 
 fn character_score(c: u8) -> u32 {
     let c = match std::char::from_u32(c as u32) {
         Some(c) => c,
-        None => { return 0; }
+        None => {
+            return 0;
+        }
     };
     return match c {
         'z' => 74,
@@ -44,8 +50,8 @@ fn character_score(c: u8) -> u32 {
         't' => 9056,
         'e' => 12702,
         ' ' => 13000,
-        _ => 0
-    }
+        _ => 0,
+    };
 }
 
 pub fn load_data(path: &str) -> Vec<u8> {
@@ -76,13 +82,12 @@ pub fn load_data_lines(path: &str) -> Vec<Vec<u8>> {
 // calculate the hamming distance between two equal length slices of u8
 pub fn hamming(a: &[u8], b: &[u8]) -> u32 {
     let pairs = a.iter().zip(b.iter());
-    return pairs.map ( |(a,b)|
-        (*a ^ *b).count_ones() as u32
-    ).fold(0, |sum, i| sum + i) as u32;
+    return pairs
+        .map(|(a, b)| (*a ^ *b).count_ones() as u32)
+        .fold(0, |sum, i| sum + i) as u32;
 }
 
 pub fn transpose(chunks: &Chunks<u8>, size: u8) -> Vec<Vec<u8>> {
-
     let mut results: Vec<Vec<u8>> = vec![Vec::new(); size as usize];
 
     for i in 0..size {
@@ -92,8 +97,10 @@ pub fn transpose(chunks: &Chunks<u8>, size: u8) -> Vec<Vec<u8>> {
 
             // however the chunks aren't all guaranteed to be equal length
             match c.get(i as usize) {
-                Some(v) => { r.push(v.clone()); },
-                None => ()
+                Some(v) => {
+                    r.push(v.clone());
+                }
+                None => (),
             }
         }
     }
@@ -119,30 +126,66 @@ pub fn has_duplicate_blocks(bytes: &[u8]) -> bool {
     return false;
 }
 
-#[test]
-fn test_hamming() {
-    let a = "this is a test".as_bytes();
-    let b = "wokka wokka!!!".as_bytes();
-
-    assert_eq!(hamming(&a, &b), 37);
+pub fn determine_oracle_block_size_by_length<T: Oracle>(oracle: &T) -> Option<usize> {
+    let initial_length = oracle.encrypt(&vec![]).len();
+    for n in 0..20 {
+        let length = oracle.encrypt(&vec![0; n]).len();
+        if length != initial_length {
+            return Some(length - initial_length);
+        }
+    }
+    None
 }
 
-#[test]
-fn test_transpose() {
-    let original = vec![1, 2, 3, 4, 5];
-    let chunks = original.chunks(2);
-    let transposed = transpose(&chunks, 2);
+#[cfg(test)]
+mod tests {
+    use oracle::UnknownSuffixEcbOracle;
+    use util::{determine_oracle_block_size_by_length, hamming, has_duplicate_blocks, transpose};
+    use BLOCK_SIZE;
 
-    let mut iter = transposed.iter();
+    #[test]
+    fn test_hamming() {
+        let a = "this is a test".as_bytes();
+        let b = "wokka wokka!!!".as_bytes();
 
-    assert_eq!(iter.next().unwrap(), &[1, 3, 5]);
-    assert_eq!(iter.next().unwrap(), &[2, 4]);
-    assert_eq!(iter.next(), None);
-}
+        assert_eq!(hamming(&a, &b), 37);
+    }
 
-#[test]
-fn test_has_duplicate_blocks() {
-    assert_eq!(false, has_duplicate_blocks(&[vec![0; 16], vec![1; 16]].concat()));
-    assert_eq!(true, has_duplicate_blocks(&[vec![0; 16], vec![0; 16]].concat()));
-    assert_eq!(false, has_duplicate_blocks(&[vec![0; 16], vec![1; 16], vec![2; 16]].concat()));
+    #[test]
+    fn test_transpose() {
+        let original = vec![1, 2, 3, 4, 5];
+        let chunks = original.chunks(2);
+        let transposed = transpose(&chunks, 2);
+
+        let mut iter = transposed.iter();
+
+        assert_eq!(iter.next().unwrap(), &[1, 3, 5]);
+        assert_eq!(iter.next().unwrap(), &[2, 4]);
+        assert_eq!(iter.next(), None);
+    }
+
+    #[test]
+    fn test_has_duplicate_blocks() {
+        assert_eq!(
+            false,
+            has_duplicate_blocks(&[vec![0; 16], vec![1; 16]].concat())
+        );
+        assert_eq!(
+            true,
+            has_duplicate_blocks(&[vec![0; 16], vec![0; 16]].concat())
+        );
+        assert_eq!(
+            false,
+            has_duplicate_blocks(&[vec![0; 16], vec![1; 16], vec![2; 16]].concat())
+        );
+    }
+
+    #[test]
+    fn test_determine_oracle_block_size_by_length() {
+        let oracle = UnknownSuffixEcbOracle::new();
+        assert_eq!(
+            determine_oracle_block_size_by_length(&oracle).unwrap(),
+            BLOCK_SIZE.into()
+        );
+    }
 }
