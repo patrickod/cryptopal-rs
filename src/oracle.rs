@@ -9,7 +9,7 @@ use {pkcs, AesKey, BLOCK_SIZE};
 type Aes128Cbc = Cbc<Aes128, Pkcs7>;
 type Aes128Ecb = Ecb<Aes128, Pkcs7>;
 
-const UNKNOWN_SUFFIX_BYTES: &'static [u8] = &base64!(
+pub const UNKNOWN_SUFFIX_BYTES: &'static [u8] = &base64!(
     "Um9sbGluJyBpbiBteSA1LjAKV2l0aCBteSByYWctdG9wIGRvd24gc28gbXkg\
     aGFpciBjYW4gYmxvdwpUaGUgZ2lybGllcyBvbiBzdGFuZGJ5IHdhdmluZyBq\
     dXN0IHRvIHNheSBoaQpEaWQgeW91IHN0b3A/IE5vLCBJIGp1c3QgZHJvdmUg\
