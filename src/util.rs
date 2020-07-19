@@ -108,7 +108,7 @@ pub fn transpose(chunks: &Chunks<u8>, size: u8) -> Vec<Vec<u8>> {
     return results;
 }
 
-pub fn has_duplicate_blocks(bytes: &[u8]) -> bool {
+pub fn detect_duplicate_blocks(bytes: &[u8]) -> bool {
     let blocks = bytes.chunks(::BLOCK_SIZE.into());
     let mut frequency: HashMap<&[u8], u8> = HashMap::new();
 
@@ -139,8 +139,8 @@ pub fn determine_oracle_block_size_by_length<T: Oracle>(oracle: &T) -> Option<us
 
 #[cfg(test)]
 mod tests {
-    use oracle::UnknownSuffixEcbOracle;
-    use util::{determine_oracle_block_size_by_length, hamming, has_duplicate_blocks, transpose};
+    use oracle::{UnknownSuffixEcbOracle,CbcEcbOracle};
+    use util::{determine_oracle_block_size_by_length, hamming, detect_duplicate_blocks, transpose};
     use BLOCK_SIZE;
 
     #[test]
@@ -165,19 +165,31 @@ mod tests {
     }
 
     #[test]
-    fn test_has_duplicate_blocks() {
+    fn test_detect_duplicate_blocks() {
         assert_eq!(
             false,
-            has_duplicate_blocks(&[vec![0; 16], vec![1; 16]].concat())
+            detect_duplicate_blocks(&[vec![0; 16], vec![1; 16]].concat())
         );
         assert_eq!(
             true,
-            has_duplicate_blocks(&[vec![0; 16], vec![0; 16]].concat())
+            detect_duplicate_blocks(&[vec![0; 16], vec![0; 16]].concat())
         );
         assert_eq!(
             false,
-            has_duplicate_blocks(&[vec![0; 16], vec![1; 16], vec![2; 16]].concat())
+            detect_duplicate_blocks(&[vec![0; 16], vec![1; 16], vec![2; 16]].concat())
         );
+    }
+
+    #[test]
+    fn test_oracle_detect_ecb() {
+        for _ in 0..100 {
+            let o = CbcEcbOracle::new();
+            // need to create at least 2 blocks worth of content in addition to
+            // the padding being added by oracle to observe duplicates
+            let input = vec![b'a'; 50];
+            let guess = detect_duplicate_blocks(&o.encrypt(&input));
+            assert_eq!(true, o.verify(guess));
+        }
     }
 
     #[test]

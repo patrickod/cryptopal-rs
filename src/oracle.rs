@@ -117,20 +117,3 @@ impl Oracle for UnknownSuffixEcbOracle {
     }
 }
 
-#[cfg(test)]
-mod test {
-    use oracle::CbcEcbOracle;
-    use util::has_duplicate_blocks;
-
-    #[test]
-    fn test_oracle_detect_ecb() {
-        for _ in 0..100 {
-            let o = CbcEcbOracle::new();
-            // need to create at least 2 blocks worth of content in addition to
-            // the padding being added by oracle to observe duplicates
-            let input = vec![b'a'; 50];
-            let guess = has_duplicate_blocks(&o.encrypt(&input));
-            assert_eq!(true, o.verify(guess));
-        }
-    }
-}
