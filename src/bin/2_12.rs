@@ -1,48 +1,37 @@
 extern crate cryptopal;
 extern crate rustc_serialize;
 
-use cryptopal::oracle::UNKNOWN_SUFFIX_BYTES;
-use cryptopal::oracle::{Oracle, UnknownSuffixEcbOracle};
-use cryptopal::BLOCK_SIZE;
-use rustc_serialize::hex::ToHex;
-
-/// determine the length of the oracle's prefix||suffix by encrypting
-/// iteratively larger plaintexts until we observe a BLOCK_SIZE change in
-/// ciphertext size.
-/// at this point we know: len(plaintext) + len(prefix||oracle) % BLOCK_SIZE == 0
-/// pkcs7 padding adds a complete BLOCK_SIZE of padding in this case also which
-/// we subtract to ascertain the prefix||suffix size
-fn determine_payload_length<T: Oracle>(oracle: &T) -> Option<usize> {
-    let initial_length = oracle.encrypt(&[]).len();
-    for n in 1..20 {
-        let length = oracle.encrypt(&vec![0; n]).len();
-        if length != initial_length {
-            return Some(initial_length - n - BLOCK_SIZE as usize);
-        }
-    }
-    None
-}
-
-#[test]
-fn test_determine_payload_length() {
-    let oracle = UnknownSuffixEcbOracle::new();
-    assert_eq!(
-        determine_payload_length(&oracle).unwrap(),
-        UNKNOWN_SUFFIX_BYTES.len()
-    );
-}
+use cryptopal::oracle::{Oracle,UnknownSuffixEcbOracle};
+use cryptopal::util::{determine_payload_length,determine_oracle_block_size};
 
 fn main() {
     let oracle = UnknownSuffixEcbOracle::new();
+    let block_size = determine_oracle_block_size(&oracle).unwrap();
+    let mut recovered: Vec<u8> = Vec::new();
 
-    println!("{}", determine_payload_length(&oracle).unwrap());
-    println!("suffix bytes: {}", UNKNOWN_SUFFIX_BYTES.len());
-    println!(
-        "{}",
-        oracle.encrypt(&vec![0; 1])[..BLOCK_SIZE.into()].to_hex()
-    );
-    println!(
-        "{}",
-        oracle.encrypt(&vec![1; 1])[..BLOCK_SIZE.into()].to_hex()
-    );
+
+    let input = vec![0; block_size - 1];
+    let reference_ciphertexts = (0..block_size)
+        .map(|x| oracle.encrypt(&input[x..]))
+        .collect::<Vec<Vec<u8>>>();
+
+    for n in 0..determine_payload_length(&oracle).unwrap() {
+        let block_index = n / block_size;
+        let byte_index = n % block_size;
+
+        for u in 0u8..=255 {
+            let t = [input.clone(), recovered.clone(), vec![u; 1]].concat();
+            let ciphertext = oracle.encrypt(&t[byte_index..]);
+            let block_range = (block_index * block_size)..((block_index + 1) * block_size);
+
+            if reference_ciphertexts[byte_index][block_range.clone()]
+                == ciphertext[block_range.clone()]
+            {
+                recovered.push(u);
+                break;
+            }
+        }
+    }
+
+    println!("{}", String::from_utf8(recovered).expect("bad UTF8"));
 }
