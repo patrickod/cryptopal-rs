@@ -16,7 +16,7 @@ impl Profile {
 
         Self {
             email: sanitized_email.to_owned(),
-            uid: 100,
+            uid: 10,
             role: "user".to_owned()
         }
     }
@@ -59,7 +59,7 @@ mod tests {
 
     #[test]
     fn test_profile_parse() {
-        Profile::parse("email=p@trickod.com&uid=100&role=admin").expect("unable to parse");
+        Profile::parse("email=p@trickod.com&uid=10&role=admin").expect("unable to parse");
     }
 
     #[test]
@@ -77,6 +77,6 @@ mod tests {
     #[test]
     fn test_profile_serialize() {
         let p = Profile::for_email("p@trickod.com");
-        assert_eq!("email=p@trickod.com&uid=100&role=user", p.serialize());
+        assert_eq!("email=p@trickod.com&uid=10&role=user", p.serialize());
     }
 }
