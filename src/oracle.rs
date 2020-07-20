@@ -45,7 +45,7 @@ impl Oracle for OracleBase {
         let key = &self.key;
         let plaintext = pkcs::pad(
             &[self.prefix.to_owned(), p.to_owned(), self.suffix.to_owned()].concat(),
-            BLOCK_SIZE.into(),
+            BLOCK_SIZE,
         );
 
         if self.use_ecb {

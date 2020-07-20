@@ -10,7 +10,7 @@ pub mod util;
 pub mod pkcs;
 pub mod oracle;
 
-pub const BLOCK_SIZE: u8 = 16;
+pub const BLOCK_SIZE: usize = 16;
 pub type AesKey = [u8; 16];
 
 use rand::prelude::*;

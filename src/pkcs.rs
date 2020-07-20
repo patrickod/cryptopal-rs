@@ -1,8 +1,8 @@
 use std::iter::*;
 
-pub fn pad(bytes: &[u8], block_size: u8 ) -> Vec<u8> {
-    let remainder = bytes.len() % block_size as usize;
-    let p_value = block_size - remainder as u8;
+pub fn pad(bytes: &[u8], block_size: usize ) -> Vec<u8> {
+    let remainder = bytes.len() % block_size;
+    let p_value = (block_size - remainder) as u8;
     let padding: Vec<u8> = repeat(p_value).take(p_value.into()).collect();
 
     [

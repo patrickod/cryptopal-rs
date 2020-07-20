@@ -6,6 +6,7 @@ use std::io::BufReader;
 use std::slice::Chunks;
 
 use oracle::Oracle;
+use BLOCK_SIZE;
 use rustc_serialize::hex::FromHex;
 
 pub fn english_score(s: &[u8]) -> u32 {
@@ -126,7 +127,7 @@ pub fn detect_duplicate_blocks(bytes: &[u8]) -> bool {
     return false;
 }
 
-pub fn determine_oracle_block_size_by_length<T: Oracle>(oracle: &T) -> Option<usize> {
+pub fn determine_oracle_block_size<T: Oracle>(oracle: &T) -> Option<usize> {
     let initial_length = oracle.encrypt(&vec![]).len();
     for n in 0..20 {
         let length = oracle.encrypt(&vec![0; n]).len();
@@ -137,11 +138,39 @@ pub fn determine_oracle_block_size_by_length<T: Oracle>(oracle: &T) -> Option<us
     None
 }
 
+/// determine the length of the oracle's prefix||suffix by encrypting
+/// iteratively larger plaintexts until we observe a BLOCK_SIZE change in
+/// ciphertext size.
+/// at this point we know: len(plaintext) + len(prefix||oracle) % BLOCK_SIZE == 0
+/// pkcs7 padding adds a complete BLOCK_SIZE of padding in this case also which
+/// we subtract to ascertain the prefix||suffix size
+pub fn determine_payload_length<T: Oracle>(oracle: &T) -> Option<usize> {
+    let initial_length = oracle.encrypt(&[]).len();
+    for n in 1..20 {
+        let length = oracle.encrypt(&vec![0; n]).len();
+        if length != initial_length {
+            return Some(initial_length - n - BLOCK_SIZE as usize);
+        }
+    }
+    None
+}
+
+// determine the number of shared prefix blocks by encrypting two discrete
+// ciphertexts and observing their first differing blocks
+pub fn determine_prefix_block_count<T: Oracle>(oracle: &T) -> Option<usize> {
+    oracle
+        .encrypt(&[0])
+        .chunks(BLOCK_SIZE.into())
+        .zip(oracle.encrypt(&[1]).chunks(BLOCK_SIZE.into()))
+        .position(|(a, b)| a != b)
+}
+
+
 #[cfg(test)]
 mod tests {
-    use oracle::{UnknownSuffixEcbOracle,CbcEcbOracle};
-    use util::{determine_oracle_block_size_by_length, hamming, detect_duplicate_blocks, transpose};
+    use oracle::*;
     use BLOCK_SIZE;
+    use util::*;
 
     #[test]
     fn test_hamming() {
@@ -193,11 +222,26 @@ mod tests {
     }
 
     #[test]
-    fn test_determine_oracle_block_size_by_length() {
+    fn test_determine_oracle_block_size() {
         let oracle = UnknownSuffixEcbOracle::new();
         assert_eq!(
-            determine_oracle_block_size_by_length(&oracle).unwrap(),
+            determine_oracle_block_size(&oracle).unwrap(),
             BLOCK_SIZE.into()
         );
+    }
+
+    #[test]
+    fn test_determine_payload_length() {
+        let oracle = UnknownSuffixEcbOracle::new();
+        assert_eq!(
+            determine_payload_length(&oracle).unwrap(),
+            UNKNOWN_SUFFIX_BYTES.len()
+        );
+    }
+
+    #[test]
+    fn test_determine_prefix_block_count() {
+        let oracle = UnknownSuffixEcbOracle::new();
+        assert_eq!(0, determine_prefix_block_count(&oracle).unwrap());
     }
 }
