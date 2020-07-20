@@ -9,6 +9,18 @@ pub struct Profile {
 }
 
 impl Profile {
+    pub fn for_email(email: &str) -> Self {
+        let sanitized_email: String = email.chars()
+            .filter( |c| !['&', '='].contains(c) )
+            .collect();
+
+        Self {
+            email: sanitized_email.to_owned(),
+            uid: 100,
+            role: "user".to_owned()
+        }
+    }
+
     pub fn parse(serialized: &str) -> Result<Self, &'static str> {
         let mut kv: HashMap<String, String> = HashMap::new();
         let pairs = serialized.split('&');
@@ -31,6 +43,14 @@ impl Profile {
             role: kv.get("role").unwrap().to_owned(),
         })
     }
+
+    pub fn serialize(&self) -> String {
+        format!("email={email}&uid={uid}&role={role}",
+             email=self.email,
+             uid=self.uid,
+             role=self.role
+        )
+    }
 }
 
 #[cfg(test)]
@@ -40,5 +60,23 @@ mod tests {
     #[test]
     fn test_profile_parse() {
         Profile::parse("email=p@trickod.com&uid=100&role=admin").expect("unable to parse");
+    }
+
+    #[test]
+    fn test_profile_for_email() {
+        let p = Profile::for_email("p@trickod.com");
+        assert_eq!(p.role, "user".to_owned());
+    }
+
+    #[test]
+    fn test_profile_for_email_invalid_characters() {
+        let p = Profile::for_email("p@trickod.com&role=admin");
+        assert_eq!(p.email, "p@trickod.comroleadmin".to_owned());
+    }
+
+    #[test]
+    fn test_profile_serialize() {
+        let p = Profile::for_email("p@trickod.com");
+        assert_eq!("email=p@trickod.com&uid=100&role=user", p.serialize());
     }
 }

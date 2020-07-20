@@ -1,4 +1,5 @@
 use std::convert::TryInto;
+use std::str;
 
 use aes::Aes128;
 use block_modes::block_padding::Pkcs7;
@@ -8,6 +9,8 @@ use rand::prelude::*;
 use {pkcs, AesKey, BLOCK_SIZE};
 type Aes128Cbc = Cbc<Aes128, Pkcs7>;
 type Aes128Ecb = Ecb<Aes128, Pkcs7>;
+
+use profile::Profile;
 
 pub const UNKNOWN_SUFFIX_BYTES: &'static [u8] = &base64!(
     "Um9sbGluJyBpbiBteSA1LjAKV2l0aCBteSByYWctdG9wIGRvd24gc28gbXkg\
@@ -117,3 +120,25 @@ impl Oracle for UnknownSuffixEcbOracle {
     }
 }
 
+pub struct ProfileOracle {
+    base: OracleBase
+}
+
+impl ProfileOracle {
+    fn new() -> Self {
+        let base = OracleBase {
+            key: "YELLOW SUBMARINE".as_bytes().try_into().expect("bad key"),
+            prefix: vec![],
+            suffix: vec![],
+            use_ecb: true,
+        };
+        Self { base }
+    }
+}
+
+impl Oracle for ProfileOracle {
+    fn encrypt(&self, p: &[u8]) -> Vec<u8> {
+        let p = Profile::for_email(str::from_utf8(p).unwrap());
+        self.base.encrypt(p.serialize().as_bytes())
+    }
+}
