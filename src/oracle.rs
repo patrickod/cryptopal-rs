@@ -125,7 +125,7 @@ pub struct ProfileOracle {
 }
 
 impl ProfileOracle {
-    fn new() -> Self {
+    pub fn new() -> Self {
         let base = OracleBase {
             key: "YELLOW SUBMARINE".as_bytes().try_into().expect("bad key"),
             prefix: vec![],
