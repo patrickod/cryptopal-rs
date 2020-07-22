@@ -79,4 +79,10 @@ mod tests {
         let p = Profile::for_email("p@trickod.com");
         assert_eq!("email=p@trickod.com&uid=10&role=user", p.serialize());
     }
+
+    #[test]
+    fn test_profile_serialize_empty() {
+        let p = Profile::for_email("");
+        assert_eq!("email=&uid=10&role=user", p.serialize());
+    }
 }

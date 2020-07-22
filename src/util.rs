@@ -1,4 +1,5 @@
 use std;
+use std::cmp;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::prelude::*;
@@ -156,14 +157,37 @@ pub fn determine_payload_length<T: Oracle>(oracle: &T) -> Option<usize> {
     None
 }
 
-// determine the number of shared prefix blocks by encrypting two discrete
-// ciphertexts and observing their first differing blocks
+// determine the number of whole prefix blocks by encrypting two discrete
+// ciphertexts and counting the nuber of duplicate blocks
 pub fn determine_prefix_block_count<T: Oracle>(oracle: &T) -> Option<usize> {
     oracle
         .encrypt(&[0])
         .chunks(BLOCK_SIZE.into())
         .zip(oracle.encrypt(&[1]).chunks(BLOCK_SIZE.into()))
         .position(|(a, b)| a != b)
+}
+
+// determine the total number of bytes prepended to our plaintext in a given
+// oracle
+pub fn determine_prefix_length<T: Oracle>(oracle: &T) -> Option<usize> {
+    let prefix_block_count: usize = determine_prefix_block_count(oracle).unwrap();
+    let prefix_offset: usize = prefix_block_count * BLOCK_SIZE;
+
+    let f = |c: u8| -> Option<usize> {
+        let v = vec![c; BLOCK_SIZE];
+        let range = prefix_offset..(prefix_offset + BLOCK_SIZE);
+        let initial = &oracle.encrypt(&v)[range];
+        for n in 0..BLOCK_SIZE {
+            let c = &oracle.encrypt(&v[n + 1..]);
+            if initial != &c[prefix_offset..(prefix_offset + BLOCK_SIZE)] {
+                return Some(n);
+            }
+        }
+        None
+    };
+
+    Some(prefix_offset + cmp::min(f(b'a').unwrap(),
+                                  f(b'b').unwrap()))
 }
 
 
@@ -232,7 +256,7 @@ mod tests {
     }
 
     #[test]
-    fn test_determine_payload_length() {
+    fn test_determine_unknown_suffix_oracle_payload_length() {
         let oracle = UnknownSuffixEcbOracle::new();
         assert_eq!(
             determine_payload_length(&oracle).unwrap(),
@@ -244,5 +268,29 @@ mod tests {
     fn test_determine_prefix_block_count() {
         let oracle = UnknownSuffixEcbOracle::new();
         assert_eq!(0, determine_prefix_block_count(&oracle).unwrap());
+    }
+
+    #[test]
+    fn test_determine_profile_oracle_payload_length() {
+        let oracle = ProfileOracle::new();
+        assert_eq!(
+            determine_payload_length(&oracle).unwrap(),
+            "email=&uid=10&role=user".len()
+        )
+    }
+
+    #[test]
+    fn test_determine_profile_oracle_prefix_block_count() {
+        let oracle = ProfileOracle::new();
+        assert_eq!(0, determine_prefix_block_count(&oracle).unwrap());
+    }
+
+    #[test]
+    fn test_determine_profile_oracle_prefix_length() {
+        let oracle = ProfileOracle::new();
+        assert_eq!(
+            "email=".len(),
+            determine_prefix_length(&oracle).unwrap()
+        );
     }
 }
