@@ -1,9 +1,7 @@
-extern crate rustc_serialize;
+extern crate hex;
 extern crate cryptopal;
 
 use std::fmt;
-
-use rustc_serialize::hex::FromHex;
 
 use cryptopal::util::english_score;
 use cryptopal::xor::repeating_character_xor;
@@ -20,7 +18,7 @@ impl fmt::Debug for Candidate {
 }
 
 pub fn main() {
-    let cyphertext = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736".from_hex().unwrap();
+    let cyphertext = hex::decode("1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736").unwrap();
     let candidate_range = 0u8..254u8;
 
     let mut candidates: Vec<Candidate> = candidate_range.map ( |c|

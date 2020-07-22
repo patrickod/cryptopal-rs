@@ -1,7 +1,5 @@
 extern crate cryptopal;
-extern crate rustc_serialize;
-
-use rustc_serialize::hex::ToHex;
+extern crate hex;
 
 use cryptopal::xor;
 
@@ -10,6 +8,5 @@ fn main() {
     let key = "ICE".as_bytes();
 
     let xored = xor::repeating_xor(&text, &key);
-    let hex = xored.to_hex();
-    println!("{}", hex);
+    println!("{}", hex::encode(xored));
 }

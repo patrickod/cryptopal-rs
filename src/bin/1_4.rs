@@ -1,7 +1,5 @@
-extern crate rustc_serialize;
+extern crate hex;
 extern crate cryptopal;
-
-use rustc_serialize::hex::ToHex;
 
 use cryptopal::xor::repeating_character_xor;
 use cryptopal::util::{english_score, load_data_lines};
@@ -38,6 +36,6 @@ fn main() {
     };
 
     println!("winning character: {}", std::char::from_u32(last.character as u32).unwrap());
-    println!("original line: {}", last.line.to_hex());
+    println!("original line: {}", hex::encode(&last.line));
     println!("xored: {}", String::from_utf8(repeating_character_xor(&last.line, last.character)).unwrap());
 }

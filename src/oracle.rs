@@ -121,7 +121,7 @@ impl Oracle for UnknownSuffixEcbOracle {
 }
 
 pub struct ProfileOracle {
-    base: OracleBase
+    base: OracleBase,
 }
 
 impl ProfileOracle {

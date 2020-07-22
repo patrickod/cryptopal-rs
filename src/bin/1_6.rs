@@ -1,8 +1,7 @@
 extern crate cryptopal;
-extern crate rustc_serialize;
 extern crate itertools;
+extern crate base64;
 
-use rustc_serialize::base64::FromBase64;
 use itertools::Itertools;
 
 use cryptopal::util::{english_score,hamming,transpose,load_data};
@@ -50,8 +49,8 @@ fn compute_optimal_keysize(data: &[u8]) -> u8 {
 }
 
 fn main () {
-    let base64 = String::from_utf8(load_data("data/6.txt")).expect("bad UTF8");
-    let data = base64.from_base64().unwrap();
+    let input = String::from_utf8(load_data("data/6.txt")).expect("bad UTF8");
+    let data = base64::decode(input).unwrap();
     let k = compute_optimal_keysize(&data);
 
     let chunks = data.chunks(k as usize);

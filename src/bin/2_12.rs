@@ -1,5 +1,4 @@
 extern crate cryptopal;
-extern crate rustc_serialize;
 
 use cryptopal::oracle::{Oracle,UnknownSuffixEcbOracle};
 use cryptopal::util::{determine_payload_length,determine_oracle_block_size};

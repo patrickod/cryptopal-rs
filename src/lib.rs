@@ -3,7 +3,7 @@ extern crate data_encoding_macro;
 extern crate aes;
 extern crate rand;
 extern crate block_modes;
-extern crate rustc_serialize;
+extern crate hex;
 
 pub mod xor;
 pub mod util;

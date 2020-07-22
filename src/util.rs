@@ -7,7 +7,7 @@ use std::slice::Chunks;
 
 use oracle::Oracle;
 use BLOCK_SIZE;
-use rustc_serialize::hex::FromHex;
+use hex;
 
 pub fn english_score(s: &[u8]) -> u32 {
     return s
@@ -74,7 +74,8 @@ pub fn load_data_lines(path: &str) -> Vec<Vec<u8>> {
     let mut lines: Vec<Vec<u8>> = Vec::new();
 
     for line in reader.lines() {
-        lines.push(line.unwrap().from_hex().unwrap());
+        let decoded = hex::decode(&line.unwrap()).unwrap();
+        lines.push(decoded);
     }
 
     lines

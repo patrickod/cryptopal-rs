@@ -1,14 +1,13 @@
 extern crate cryptopal;
 extern crate openssl;
-extern crate rustc_serialize;
+extern crate base64;
 
-use rustc_serialize::base64::FromBase64;
 use openssl::symm::{Crypter,Cipher,Mode};
 use cryptopal::util::load_data;
 
 fn main () {
-    let base64 = load_data("./data/7.txt");
-    let data = match base64.from_base64() {
+    let input = load_data("./data/7.txt");
+    let data = match base64::decode(input) {
         Ok(e) => e,
         Err(e) => { panic!("Unable to decode b64 data: {:?}", e); }
     };

@@ -1,18 +1,17 @@
 extern crate cryptopal;
 extern crate openssl;
-extern crate rustc_serialize;
+extern crate base64;
 extern crate crypto;
 extern crate itertools;
 
 use openssl::symm::{Crypter,Cipher,Mode};
-use rustc_serialize::base64::FromBase64;
 
 use cryptopal::util::load_data;
 use cryptopal::xor::xor;
 
 fn main() {
-    let base64 = String::from_utf8(load_data("data/10.txt")).expect("bad UTF8");
-    let data = base64.from_base64().expect("Unable to b64decode data");
+    let input = String::from_utf8(load_data("data/10.txt")).expect("bad UTF8");
+    let data = base64::decode(input).expect("Unable to b64decode data");
     let key = "YELLOW SUBMARINE".as_bytes();
 
     let iv = vec![0x00; 16];
@@ -46,19 +45,18 @@ pub fn decrypt_block(block: &[u8], key: &[u8]) -> Vec<u8> {
 
 #[cfg(test)]
 mod test {
-    extern crate rustc_serialize;
     extern crate openssl;
+    extern crate hex;
 
-    use rustc_serialize::hex::FromHex;
     use decrypt_block;
     use cryptopal::xor::xor;
 
     #[test]
     fn test_decrypt_block() {
-        let block = "091230aade3eb330dbaa4358f88d2a6c".from_hex().expect("Unable to decode block");
+        let block = hex::decode("091230aade3eb330dbaa4358f88d2a6c").expect("Unable to decode block");
         let iv = vec![0x00; 16];
         let key = "YELLOW SUBMARINE".as_bytes();
-        let expected = "49276d206261636b20616e642049276d".from_hex().expect("Unable to decode expected result");
+        let expected = hex::decode("49276d206261636b20616e642049276d").expect("Unable to decode expected result");
 
         let output = xor(&iv, decrypt_block(&block, &key).as_slice());
         assert_eq!(output[..16].to_owned(), expected);
