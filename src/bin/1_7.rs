@@ -1,15 +1,17 @@
+extern crate base64;
 extern crate cryptopal;
 extern crate openssl;
-extern crate base64;
 
-use openssl::symm::{Crypter,Cipher,Mode};
 use cryptopal::util::load_data;
+use openssl::symm::{Cipher, Crypter, Mode};
 
-fn main () {
+fn main() {
     let input = load_data("./data/7.txt");
     let data = match base64::decode(input) {
         Ok(e) => e,
-        Err(e) => { panic!("Unable to decode b64 data: {:?}", e); }
+        Err(e) => {
+            panic!("Unable to decode b64 data: {:?}", e);
+        }
     };
 
     // initalize the key and openssl crypter

@@ -1,5 +1,5 @@
-extern crate hex;
 extern crate cryptopal;
+extern crate hex;
 
 use std::fmt;
 
@@ -8,7 +8,7 @@ use cryptopal::xor::repeating_character_xor;
 
 struct Candidate {
     character: u8,
-    score: u32
+    score: u32,
 }
 
 impl fmt::Debug for Candidate {
@@ -18,17 +18,19 @@ impl fmt::Debug for Candidate {
 }
 
 pub fn main() {
-    let cyphertext = hex::decode("1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736").unwrap();
+    let cyphertext =
+        hex::decode("1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736")
+            .unwrap();
     let candidate_range = 0u8..254u8;
 
-    let mut candidates: Vec<Candidate> = candidate_range.map ( |c|
-        Candidate {
+    let mut candidates: Vec<Candidate> = candidate_range
+        .map(|c| Candidate {
             character: c,
-            score: english_score(&repeating_character_xor(&cyphertext, c))
-        }
-    ).collect();
+            score: english_score(&repeating_character_xor(&cyphertext, c)),
+        })
+        .collect();
 
-    candidates.sort_by (|a, b| a.score.cmp(&b.score) );
+    candidates.sort_by(|a, b| a.score.cmp(&b.score));
 
     println!("Winning character: {:?}", candidates.last().unwrap());
 }

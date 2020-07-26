@@ -6,9 +6,9 @@ use std::io::prelude::*;
 use std::io::BufReader;
 use std::slice::Chunks;
 
+use hex;
 use oracle::Oracle;
 use BLOCK_SIZE;
-use hex;
 
 pub fn english_score(s: &[u8]) -> u32 {
     return s
@@ -186,16 +186,14 @@ pub fn determine_prefix_length<T: Oracle>(oracle: &T) -> Option<usize> {
         None
     };
 
-    Some(prefix_offset + cmp::min(f(b'a').unwrap(),
-                                  f(b'b').unwrap()))
+    Some(prefix_offset + cmp::min(f(b'a').unwrap(), f(b'b').unwrap()))
 }
-
 
 #[cfg(test)]
 mod tests {
     use oracle::*;
-    use BLOCK_SIZE;
     use util::*;
+    use BLOCK_SIZE;
 
     #[test]
     fn test_hamming() {
@@ -288,9 +286,6 @@ mod tests {
     #[test]
     fn test_determine_profile_oracle_prefix_length() {
         let oracle = ProfileOracle::new();
-        assert_eq!(
-            "email=".len(),
-            determine_prefix_length(&oracle).unwrap()
-        );
+        assert_eq!("email=".len(), determine_prefix_length(&oracle).unwrap());
     }
 }

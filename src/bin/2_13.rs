@@ -16,7 +16,10 @@ fn main() {
         "payload length: {}",
         util::determine_payload_length(&oracle).unwrap()
     );
-    println!("empty: {}", Profile::for_email(str::from_utf8(&[]).unwrap()).serialize());
+    println!(
+        "empty: {}",
+        Profile::for_email(str::from_utf8(&[]).unwrap()).serialize()
+    );
     assert_eq!(
         "&uid=100&role=admin".len(),
         util::determine_payload_length(&oracle).unwrap()

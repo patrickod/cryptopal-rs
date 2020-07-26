@@ -1,13 +1,12 @@
 extern crate cryptopal;
 
-use cryptopal::oracle::{Oracle,UnknownSuffixEcbOracle};
-use cryptopal::util::{determine_payload_length,determine_oracle_block_size};
+use cryptopal::oracle::{Oracle, UnknownSuffixEcbOracle};
+use cryptopal::util::{determine_oracle_block_size, determine_payload_length};
 
 fn main() {
     let oracle = UnknownSuffixEcbOracle::new();
     let block_size = determine_oracle_block_size(&oracle).unwrap();
     let mut recovered: Vec<u8> = Vec::new();
-
 
     let input = vec![0; block_size - 1];
     let reference_ciphertexts = (0..block_size)

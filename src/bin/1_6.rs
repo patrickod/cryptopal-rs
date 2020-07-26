@@ -1,15 +1,15 @@
+extern crate base64;
 extern crate cryptopal;
 extern crate itertools;
-extern crate base64;
 
 use itertools::Itertools;
 
-use cryptopal::util::{english_score,hamming,transpose,load_data};
-use cryptopal::xor::{repeating_character_xor,repeating_xor};
+use cryptopal::util::{english_score, hamming, load_data, transpose};
+use cryptopal::xor::{repeating_character_xor, repeating_xor};
 
 struct KeySize {
     size: u8,
-    score: u32
+    score: u32,
 }
 
 struct Candidate {
@@ -37,18 +37,18 @@ fn compute_optimal_keysize(data: &[u8]) -> u8 {
     for keysize in 2u8..40u8 {
         keysizes.push(KeySize {
             size: keysize,
-            score: normalized_edit_distance(&data, keysize)
+            score: normalized_edit_distance(&data, keysize),
         });
     }
     // Sort by keysize ascending
-    keysizes.sort_by (|a, b| a.score.cmp(&b.score) );
+    keysizes.sort_by(|a, b| a.score.cmp(&b.score));
 
     let k = keysizes.first().unwrap();
 
     return k.size;
 }
 
-fn main () {
+fn main() {
     let input = String::from_utf8(load_data("data/6.txt")).expect("bad UTF8");
     let data = base64::decode(input).unwrap();
     let k = compute_optimal_keysize(&data);
@@ -66,10 +66,10 @@ fn main () {
 
             candidates.push(Candidate {
                 score: score,
-                character: c
+                character: c,
             });
         }
-        candidates.sort_by (|a, b| a.score.cmp(&b.score) );
+        candidates.sort_by(|a, b| a.score.cmp(&b.score));
         key.push(candidates.last().unwrap().character.clone());
     }
     println!("{:?}", key);

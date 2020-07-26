@@ -1,8 +1,8 @@
-extern crate hex;
 extern crate cryptopal;
+extern crate hex;
 
-use cryptopal::xor::repeating_character_xor;
 use cryptopal::util::{english_score, load_data_lines};
+use cryptopal::xor::repeating_character_xor;
 
 struct Candidate {
     score: u32,
@@ -22,20 +22,28 @@ fn main() {
             candidates.push(Candidate {
                 score: score,
                 line: line.clone(),
-                character: c
+                character: c,
             });
         }
     }
 
     // Sort by their scoroe ascending
-    candidates.sort_by (|a, b| a.score.cmp(&b.score) );
+    candidates.sort_by(|a, b| a.score.cmp(&b.score));
 
     let last = match candidates.last() {
         Some(w) => w,
-        None => { panic!("No winner!"); }
+        None => {
+            panic!("No winner!");
+        }
     };
 
-    println!("winning character: {}", std::char::from_u32(last.character as u32).unwrap());
+    println!(
+        "winning character: {}",
+        std::char::from_u32(last.character as u32).unwrap()
+    );
     println!("original line: {}", hex::encode(&last.line));
-    println!("xored: {}", String::from_utf8(repeating_character_xor(&last.line, last.character)).unwrap());
+    println!(
+        "xored: {}",
+        String::from_utf8(repeating_character_xor(&last.line, last.character)).unwrap()
+    );
 }

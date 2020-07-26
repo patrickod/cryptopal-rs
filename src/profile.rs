@@ -10,14 +10,12 @@ pub struct Profile {
 
 impl Profile {
     pub fn for_email(email: &str) -> Self {
-        let sanitized_email: String = email.chars()
-            .filter( |c| !['&', '='].contains(c) )
-            .collect();
+        let sanitized_email: String = email.chars().filter(|c| !['&', '='].contains(c)).collect();
 
         Self {
             email: sanitized_email.to_owned(),
             uid: 10,
-            role: "user".to_owned()
+            role: "user".to_owned(),
         }
     }
 
@@ -45,10 +43,11 @@ impl Profile {
     }
 
     pub fn serialize(&self) -> String {
-        format!("email={email}&uid={uid}&role={role}",
-             email=self.email,
-             uid=self.uid,
-             role=self.role
+        format!(
+            "email={email}&uid={uid}&role={role}",
+            email = self.email,
+            uid = self.uid,
+            role = self.role
         )
     }
 }

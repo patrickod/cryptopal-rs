@@ -1,15 +1,15 @@
 #[macro_use]
 extern crate data_encoding_macro;
 extern crate aes;
-extern crate rand;
 extern crate block_modes;
 extern crate hex;
+extern crate rand;
 
-pub mod xor;
-pub mod util;
-pub mod pkcs;
 pub mod oracle;
+pub mod pkcs;
 pub mod profile;
+pub mod util;
+pub mod xor;
 
 pub const BLOCK_SIZE: usize = 16;
 pub type AesKey = [u8; 16];

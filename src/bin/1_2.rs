@@ -1,8 +1,7 @@
 extern crate hex;
 
-
 pub fn xor(a: &[u8], b: &[u8]) -> Vec<u8> {
-    return a.iter().zip(b.iter()).map(|(x,y)| *x ^ *y).collect();
+    return a.iter().zip(b.iter()).map(|(x, y)| *x ^ *y).collect();
 }
 
 pub fn main() {

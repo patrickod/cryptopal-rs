@@ -5,17 +5,17 @@ pub fn repeating_character_xor(a: &[u8], b: u8) -> Vec<u8> {
 pub fn repeating_xor(a: &[u8], b: &[u8]) -> Vec<u8> {
     let cycle = b.iter().cycle();
 
-    return cycle.zip(a.iter()).map ( |(a, b)| *a ^ *b ).collect();
+    return cycle.zip(a.iter()).map(|(a, b)| *a ^ *b).collect();
 }
 
 pub fn xor(a: &[u8], b: &[u8]) -> Vec<u8> {
-    return a.iter().zip(b.iter()).map ( |(x, y)| *x ^ *y ).collect()
+    return a.iter().zip(b.iter()).map(|(x, y)| *x ^ *y).collect();
 }
 
 #[cfg(test)]
 mod tests {
-    use xor::*;
     use hex;
+    use xor::*;
 
     #[test]
     fn test_repeating_xor() {
