@@ -19,7 +19,7 @@ fn main() {
     let payload_length = util::calculate_payload_length(&oracle).expect("bad payload");
     let prefix_length = util::calculate_prefix_length(&oracle).expect("bad oracle");
     let suffix_length = payload_length - prefix_length;
-    let padding_to_block_edge = block_size - prefix_length;
+    let padding_to_block_edge = block_size - (prefix_length % block_size);
 
     // padding bytes to block edge + the amount necesassary to split the block
     // end at the beginning of `user`
