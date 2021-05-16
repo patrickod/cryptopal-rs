@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::result::Result;
 use std::str::FromStr;
 
+#[derive(Debug)]
 pub struct Profile {
     email: String,
     uid: u64,

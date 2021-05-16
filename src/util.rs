@@ -129,7 +129,7 @@ pub fn detect_duplicate_blocks(bytes: &[u8]) -> bool {
     return false;
 }
 
-pub fn determine_oracle_block_size<T: Oracle>(oracle: &T) -> Option<usize> {
+pub fn calculate_oracle_block_size<T: Oracle>(oracle: &T) -> Option<usize> {
     let initial_length = oracle.encrypt(&vec![]).len();
     for n in 0..20 {
         let length = oracle.encrypt(&vec![0; n]).len();
@@ -146,7 +146,7 @@ pub fn determine_oracle_block_size<T: Oracle>(oracle: &T) -> Option<usize> {
 /// at this point we know: len(plaintext) + len(prefix||oracle) % BLOCK_SIZE == 0
 /// pkcs7 padding adds a complete BLOCK_SIZE of padding in this case also which
 /// we subtract to ascertain the prefix||suffix size
-pub fn determine_payload_length<T: Oracle>(oracle: &T) -> Option<usize> {
+pub fn calculate_payload_length<T: Oracle>(oracle: &T) -> Option<usize> {
     let initial_length = oracle.encrypt(&[]).len();
     for n in 1..20 {
         let length = oracle.encrypt(&vec![0; n]).len();
@@ -159,7 +159,7 @@ pub fn determine_payload_length<T: Oracle>(oracle: &T) -> Option<usize> {
 
 // determine the number of whole prefix blocks by encrypting two discrete
 // ciphertexts and counting the nuber of duplicate blocks
-pub fn determine_prefix_block_count<T: Oracle>(oracle: &T) -> Option<usize> {
+pub fn calculate_prefix_block_count<T: Oracle>(oracle: &T) -> Option<usize> {
     oracle
         .encrypt(&[0])
         .chunks(BLOCK_SIZE.into())
@@ -169,8 +169,8 @@ pub fn determine_prefix_block_count<T: Oracle>(oracle: &T) -> Option<usize> {
 
 // determine the total number of bytes prepended to our plaintext in a given
 // oracle
-pub fn determine_prefix_length<T: Oracle>(oracle: &T) -> Option<usize> {
-    let prefix_block_count: usize = determine_prefix_block_count(oracle).unwrap();
+pub fn calculate_prefix_length<T: Oracle>(oracle: &T) -> Option<usize> {
+    let prefix_block_count: usize = calculate_prefix_block_count(oracle).unwrap();
     let prefix_offset: usize = prefix_block_count * BLOCK_SIZE;
 
     let f = |c: u8| -> Option<usize> {
@@ -245,47 +245,47 @@ mod tests {
     }
 
     #[test]
-    fn test_determine_oracle_block_size() {
+    fn test_calculate_oracle_block_size() {
         let oracle = UnknownSuffixEcbOracle::new();
         assert_eq!(
-            determine_oracle_block_size(&oracle).unwrap(),
+            calculate_oracle_block_size(&oracle).unwrap(),
             BLOCK_SIZE.into()
         );
     }
 
     #[test]
-    fn test_determine_unknown_suffix_oracle_payload_length() {
+    fn test_calculate_unknown_suffix_oracle_payload_length() {
         let oracle = UnknownSuffixEcbOracle::new();
         assert_eq!(
-            determine_payload_length(&oracle).unwrap(),
+            calculate_payload_length(&oracle).unwrap(),
             UNKNOWN_SUFFIX_BYTES.len()
         );
     }
 
     #[test]
-    fn test_determine_prefix_block_count() {
+    fn test_calculate_prefix_block_count() {
         let oracle = UnknownSuffixEcbOracle::new();
-        assert_eq!(0, determine_prefix_block_count(&oracle).unwrap());
+        assert_eq!(0, calculate_prefix_block_count(&oracle).unwrap());
     }
 
     #[test]
-    fn test_determine_profile_oracle_payload_length() {
+    fn test_calculate_profile_oracle_payload_length() {
         let oracle = ProfileOracle::new();
         assert_eq!(
-            determine_payload_length(&oracle).unwrap(),
+            calculate_payload_length(&oracle).unwrap(),
             "email=&uid=10&role=user".len()
         )
     }
 
     #[test]
-    fn test_determine_profile_oracle_prefix_block_count() {
+    fn test_calculate_profile_oracle_prefix_block_count() {
         let oracle = ProfileOracle::new();
-        assert_eq!(0, determine_prefix_block_count(&oracle).unwrap());
+        assert_eq!(0, calculate_prefix_block_count(&oracle).unwrap());
     }
 
     #[test]
-    fn test_determine_profile_oracle_prefix_length() {
+    fn test_calculate_profile_oracle_prefix_length() {
         let oracle = ProfileOracle::new();
-        assert_eq!("email=".len(), determine_prefix_length(&oracle).unwrap());
+        assert_eq!("email=".len(), calculate_prefix_length(&oracle).unwrap());
     }
 }

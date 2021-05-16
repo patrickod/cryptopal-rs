@@ -1,11 +1,11 @@
 extern crate cryptopal;
 
 use cryptopal::oracle::{Oracle, UnknownSuffixEcbOracle};
-use cryptopal::util::{determine_oracle_block_size, determine_payload_length};
+use cryptopal::util::{calculate_oracle_block_size, calculate_payload_length};
 
 fn main() {
     let oracle = UnknownSuffixEcbOracle::new();
-    let block_size = determine_oracle_block_size(&oracle).unwrap();
+    let block_size = calculate_oracle_block_size(&oracle).unwrap();
     let mut recovered: Vec<u8> = Vec::new();
 
     let input = vec![0; block_size - 1];
@@ -13,7 +13,7 @@ fn main() {
         .map(|x| oracle.encrypt(&input[x..]))
         .collect::<Vec<Vec<u8>>>();
 
-    for n in 0..determine_payload_length(&oracle).unwrap() {
+    for n in 0..calculate_payload_length(&oracle).unwrap() {
         let block_index = n / block_size;
         let byte_index = n % block_size;
 

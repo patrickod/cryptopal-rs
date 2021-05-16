@@ -34,6 +34,7 @@ fn padding_bytes() -> Vec<u8> {
 
 pub trait Oracle {
     fn encrypt(&self, p: &[u8]) -> Vec<u8>;
+    fn decrypt(&self, ciphertext: &[u8]) -> Vec<u8>;
 }
 
 pub struct OracleBase {
@@ -60,12 +61,25 @@ impl Oracle for OracleBase {
             .expect("CBC panic")
             .encrypt_vec(&plaintext)
     }
+
+    fn decrypt(&self, ciphertext: &[u8]) -> Vec<u8> {
+        if self.use_ecb {
+            let decrypter =
+                Aes128Ecb::new_var(&self.key, Default::default()).expect("ECB decrypt panic");
+            decrypter.decrypt_vec(&ciphertext).expect("bad ecb decrypt")
+        } else {
+            let decrypter =
+                Aes128Cbc::new_var(&self.key, &random_key()).expect("ECB decrypt panic");
+            decrypter.decrypt_vec(&ciphertext).expect("bad cbc decrypt")
+        }
+    }
 }
 
 impl OracleBase {
     fn check_ecb(&self, guess: bool) -> bool {
         self.use_ecb == guess
     }
+
 }
 
 pub struct CbcEcbOracle {
@@ -118,6 +132,9 @@ impl Oracle for UnknownSuffixEcbOracle {
     fn encrypt(&self, p: &[u8]) -> Vec<u8> {
         self.base.encrypt(&p)
     }
+    fn decrypt(&self, ciphertext: &[u8]) -> Vec<u8> {
+        self.base.decrypt(&ciphertext)
+    }
 }
 
 pub struct ProfileOracle {
@@ -140,5 +157,9 @@ impl Oracle for ProfileOracle {
     fn encrypt(&self, p: &[u8]) -> Vec<u8> {
         let p = Profile::for_email(str::from_utf8(p).unwrap());
         self.base.encrypt(p.serialize().as_bytes())
+    }
+
+    fn decrypt(&self, ciphertext: &[u8]) -> Vec<u8> {
+        self.base.decrypt(ciphertext)
     }
 }

@@ -1,10 +1,10 @@
 let
-  rust-version = "1.45.0";
+  rust-version = "1.51.0";
 
   nixpkgs = fetchGit {
-    url = "https://github.com/NixOS/nixpkgs.git";
-    rev = "5272327b81ed355bbed5659b8d303cf2979b6953";
-    ref = "release-20.03";
+    url = "https://github.com/patrickod/nixpkgs.git";
+    rev = "52e9607e1702ef469ec5cf6d11173c0ebaf1c8a7";
+    ref = "personal";
   };
 
   mozilla-overlay =
