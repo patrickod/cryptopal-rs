@@ -4,9 +4,9 @@ use std::str::FromStr;
 
 #[derive(Debug)]
 pub struct Profile {
-    email: String,
-    uid: u64,
-    role: String,
+    pub email: String,
+    pub uid: u64,
+    pub role: String,
 }
 
 impl Profile {

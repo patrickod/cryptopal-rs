@@ -130,8 +130,8 @@ pub fn detect_duplicate_blocks(bytes: &[u8]) -> bool {
 }
 
 pub fn calculate_oracle_block_size<T: Oracle>(oracle: &T) -> Option<usize> {
-    let initial_length = oracle.encrypt(&vec![]).len();
-    for n in 0..20 {
+    let initial_length = oracle.encrypt(&vec![0u8; 1]).len();
+    for n in 1..32 {
         let length = oracle.encrypt(&vec![0; n]).len();
         if length != initial_length {
             return Some(length - initial_length);
@@ -146,9 +146,10 @@ pub fn calculate_oracle_block_size<T: Oracle>(oracle: &T) -> Option<usize> {
 /// at this point we know: len(plaintext) + len(prefix||oracle) % BLOCK_SIZE == 0
 /// pkcs7 padding adds a complete BLOCK_SIZE of padding in this case also which
 /// we subtract to ascertain the prefix||suffix size
-pub fn calculate_payload_length<T: Oracle>(oracle: &T) -> Option<usize> {
+pub fn calculate_total_payload_length<T: Oracle>(oracle: &T) -> Option<usize> {
     let initial_length = oracle.encrypt(&[]).len();
-    for n in 1..20 {
+
+    for n in 1..32 {
         let length = oracle.encrypt(&vec![0; n]).len();
         if length != initial_length {
             return Some(initial_length - n - BLOCK_SIZE as usize);
@@ -257,7 +258,7 @@ mod tests {
     fn test_calculate_unknown_suffix_oracle_payload_length() {
         let oracle = UnknownSuffixEcbOracle::new();
         assert_eq!(
-            calculate_payload_length(&oracle).unwrap(),
+            calculate_total_payload_length(&oracle).unwrap(),
             UNKNOWN_SUFFIX_BYTES.len()
         );
     }
@@ -272,7 +273,7 @@ mod tests {
     fn test_calculate_profile_oracle_payload_length() {
         let oracle = ProfileOracle::new();
         assert_eq!(
-            calculate_payload_length(&oracle).unwrap(),
+            calculate_total_payload_length(&oracle).unwrap(),
             "email=&uid=10&role=user".len()
         )
     }
@@ -287,5 +288,13 @@ mod tests {
     fn test_calculate_profile_oracle_prefix_length() {
         let oracle = ProfileOracle::new();
         assert_eq!("email=".len(), calculate_prefix_length(&oracle).unwrap());
+    }
+
+    #[test]
+    fn test_calculate_random_prefix_unknown_suffix_oracle_payload_length() {
+        let o = RandomPrefixUnknownSuffixEcbOracle::new();
+        let payload_length = calculate_total_payload_length(&o).unwrap();
+        let prefix_length = calculate_prefix_length(&o).unwrap();
+        assert_eq!(UNKNOWN_SUFFIX_BYTES.len(), (payload_length - prefix_length));
     }
 }

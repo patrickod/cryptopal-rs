@@ -79,7 +79,6 @@ impl OracleBase {
     fn check_ecb(&self, guess: bool) -> bool {
         self.use_ecb == guess
     }
-
 }
 
 pub struct CbcEcbOracle {
@@ -151,6 +150,17 @@ impl ProfileOracle {
         };
         Self { base }
     }
+
+    pub fn verify(&self, guess: &[u8]) -> bool {
+        let s = match str::from_utf8(guess) {
+            Ok(s) => s,
+            Err(_) => return false,
+        };
+        match Profile::parse(s) {
+            Ok(p) => p.role.eq("admin"),
+            Err(_) => false,
+        }
+    }
 }
 
 impl Oracle for ProfileOracle {
@@ -172,8 +182,8 @@ impl RandomPrefixUnknownSuffixEcbOracle {
     pub fn new() -> Self {
         // generate random-length prefix bytes for each oracle instantiation
         let mut rng = rand::thread_rng();
-        let mut prefix = vec![0u8; rng.gen_range(15, 42)];
-        rng.fill( prefix.as_mut_slice());
+        let mut prefix = vec![0u8; rng.gen_range(8, 40)];
+        rng.fill(prefix.as_mut_slice());
 
         let base = OracleBase {
             key: "YELLOW SUBMARINE".as_bytes().try_into().expect("bad key"),
