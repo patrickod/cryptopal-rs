@@ -1,7 +1,7 @@
 use rand::Rng;
 
 use crate::random_key;
-use oracle::{OracleBase,Oracle};
+use oracle::{Oracle, OracleBase};
 
 fn random_padding_bytes() -> Vec<u8> {
     let mut rng = rand::thread_rng();

@@ -14,6 +14,9 @@ mod profile_oracle;
 // 2-14 ECB byte-at-a-time (harder)
 mod random_prefix_target_suffix_ecb_oracle;
 
+// 2-16 CBC bit-flipping
+mod cbc_target_oracle;
+
 type Aes128Cbc = Cbc<Aes128, Pkcs7>;
 type Aes128Ecb = Ecb<Aes128, Pkcs7>;
 
@@ -75,6 +78,7 @@ impl OracleBase {
 
 // convenience exports
 pub use self::cbc_ecb_oracle::CbcEcbOracle;
-pub use self::unknown_suffix_ecb_oracle::UnknownSuffixEcbOracle;
+pub use self::cbc_target_oracle::CbcTargetOracle;
 pub use self::profile_oracle::ProfileOracle;
 pub use self::random_prefix_target_suffix_ecb_oracle::RandomPrefixTargetSuffixEcbOracle;
+pub use self::unknown_suffix_ecb_oracle::UnknownSuffixEcbOracle;

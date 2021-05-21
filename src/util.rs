@@ -192,9 +192,9 @@ pub fn calculate_prefix_length<T: Oracle>(oracle: &T) -> Option<usize> {
 
 #[cfg(test)]
 mod tests {
+    use oracle::*;
     use util::*;
     use BLOCK_SIZE;
-    use oracle::*;
 
     #[test]
     fn test_hamming() {

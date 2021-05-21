@@ -1,8 +1,8 @@
-use std::str;
 use std::convert::TryInto;
+use std::str;
 
-use oracle::{Oracle, OracleBase};
 use oracle::profile::Profile;
+use oracle::{Oracle, OracleBase};
 
 pub struct ProfileOracle {
     base: OracleBase,
