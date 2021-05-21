@@ -192,9 +192,9 @@ pub fn calculate_prefix_length<T: Oracle>(oracle: &T) -> Option<usize> {
 
 #[cfg(test)]
 mod tests {
-    use oracle::*;
     use util::*;
     use BLOCK_SIZE;
+    use oracle::*;
 
     #[test]
     fn test_hamming() {
@@ -259,7 +259,7 @@ mod tests {
         let oracle = UnknownSuffixEcbOracle::new();
         assert_eq!(
             calculate_total_payload_length(&oracle).unwrap(),
-            UNKNOWN_SUFFIX_BYTES.len()
+            TARGET_SUFFIX_BYTES.len()
         );
     }
 
@@ -292,9 +292,9 @@ mod tests {
 
     #[test]
     fn test_calculate_random_prefix_unknown_suffix_oracle_payload_length() {
-        let o = RandomPrefixUnknownSuffixEcbOracle::new();
+        let o = RandomPrefixTargetSuffixEcbOracle::new();
         let payload_length = calculate_total_payload_length(&o).unwrap();
         let prefix_length = calculate_prefix_length(&o).unwrap();
-        assert_eq!(UNKNOWN_SUFFIX_BYTES.len(), (payload_length - prefix_length));
+        assert_eq!(TARGET_SUFFIX_BYTES.len(), (payload_length - prefix_length));
     }
 }

@@ -55,7 +55,7 @@ impl Profile {
 
 #[cfg(test)]
 mod tests {
-    use profile::Profile;
+    use oracle::profile::Profile;
 
     #[test]
     fn test_profile_parse() {

@@ -1,11 +1,11 @@
 extern crate cryptopal;
 extern crate hex;
 
-use cryptopal::oracle::{Oracle, RandomPrefixUnknownSuffixEcbOracle};
+use cryptopal::oracle::{Oracle, RandomPrefixTargetSuffixEcbOracle};
 use cryptopal::util;
 
 fn main() {
-    let oracle = RandomPrefixUnknownSuffixEcbOracle::new();
+    let oracle = RandomPrefixTargetSuffixEcbOracle::new();
 
     let block_size = util::calculate_oracle_block_size(&oracle).expect("block size");
     let total_payload_length =

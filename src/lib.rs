@@ -7,7 +7,6 @@ extern crate rand;
 
 pub mod oracle;
 pub mod pkcs;
-pub mod profile;
 pub mod util;
 pub mod xor;
 
