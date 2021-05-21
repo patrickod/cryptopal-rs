@@ -4,6 +4,9 @@ extern crate aes;
 extern crate block_modes;
 extern crate hex;
 extern crate rand;
+extern crate difference;
+#[cfg(test)]
+extern crate pretty_assertions;
 
 pub mod oracle;
 pub mod pkcs;

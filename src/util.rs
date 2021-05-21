@@ -192,6 +192,7 @@ pub fn calculate_prefix_length<T: Oracle>(oracle: &T) -> Option<usize> {
 
 #[cfg(test)]
 mod tests {
+    use pretty_assertions::assert_eq;
     use oracle::*;
     use util::*;
     use BLOCK_SIZE;

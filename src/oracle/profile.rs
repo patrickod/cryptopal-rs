@@ -55,7 +55,9 @@ impl Profile {
 
 #[cfg(test)]
 mod tests {
+    extern crate pretty_assertions;
     use oracle::profile::Profile;
+    use pretty_assertions::assert_eq;
 
     #[test]
     fn test_profile_parse() {

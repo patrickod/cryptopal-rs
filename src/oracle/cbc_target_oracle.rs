@@ -15,7 +15,7 @@ impl CbcTargetOracle {
             suffix: ";comment2=%20like%20a%20pound%20of%20bacon"
                 .as_bytes()
                 .to_vec(),
-            use_ecb: true,
+            use_ecb: false,
         };
 
         Self { base }

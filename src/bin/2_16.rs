@@ -1,28 +1,28 @@
 extern crate cryptopal;
 extern crate hex;
-
-use std::str;
+extern crate difference;
 
 use cryptopal::oracle::{CbcTargetOracle, Oracle};
-use cryptopal::util;
-use cryptopal::pkcs;
+use cryptopal::xor;
+use difference::Changeset;
 
 fn main() {
     let oracle = CbcTargetOracle::new();
     let c1 = oracle.encrypt(";admin=true;1234".as_bytes());
 
-    let block_size = util::calculate_oracle_block_size(&oracle).expect("block size");
-    let total_payload_length =
-        util::calculate_total_payload_length(&oracle).expect("payload length");
-    let prefix_length = util::calculate_prefix_length(&oracle).expect("prefix length");
-    let padding_to_block_edge = block_size - (prefix_length % block_size);
+    let mut t = vec![0u8; 15];
+    t.push(b'X');
+    let c2 = [
+        &xor::xor(&c1[0..16], &t),
+        &c1[16..]
+    ].concat();
 
-    println!(
-        "{}",
-        str::from_utf8(pkcs::strip(&oracle.decrypt(&c1)).unwrap()).unwrap()
-    );
-    println!(
-        "block_size: {:02} total_payload_length: {:02} prefix_length: {:02} padding_to_block_edge: {:02}",
-        block_size, total_payload_length, prefix_length, padding_to_block_edge
-    )
+    let d1 = oracle.decrypt(&c1);
+    let d2 = oracle.decrypt(&c2);
+
+    d1.chunks(16).zip(d2.chunks(16)).for_each (|(ch1, ch2)| {
+        println!("===");
+        println!("{}", Changeset::new(&hex::encode(ch1), &hex::encode(ch2), ""));
+    });
+
 }

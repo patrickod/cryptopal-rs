@@ -14,6 +14,7 @@ pub fn xor(a: &[u8], b: &[u8]) -> Vec<u8> {
 
 #[cfg(test)]
 mod tests {
+    use pretty_assertions::assert_eq;
     use hex;
     use xor::*;
 

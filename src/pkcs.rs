@@ -26,6 +26,7 @@ pub fn strip(bytes: &[u8]) -> Result<&[u8], &'static str> {
 #[cfg(test)]
 mod tests {
     use pkcs::*;
+    use pretty_assertions::assert_eq;
 
     #[test]
     fn test_pad() {
