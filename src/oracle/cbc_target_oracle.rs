@@ -16,6 +16,7 @@ impl CbcTargetOracle {
                 .as_bytes()
                 .to_vec(),
             use_ecb: false,
+            iv: Some(random_key()),
         };
 
         Self { base }

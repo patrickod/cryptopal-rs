@@ -15,6 +15,7 @@ impl ProfileOracle {
             prefix: vec![],
             suffix: vec![],
             use_ecb: true,
+            iv: None,
         };
         Self { base }
     }

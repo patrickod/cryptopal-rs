@@ -33,6 +33,7 @@ pub trait Oracle {
 }
 
 pub struct OracleBase {
+    iv: Option<AesKey>,
     key: AesKey,
     prefix: Vec<u8>,
     suffix: Vec<u8>,
@@ -52,7 +53,7 @@ impl Oracle for OracleBase {
                 .expect("ECB panic")
                 .encrypt_vec(&plaintext);
         }
-        Aes128Cbc::new_var(key, &random_key())
+        Aes128Cbc::new_var(key, &self.iv.unwrap())
             .expect("CBC panic")
             .encrypt_vec(&plaintext)
     }
@@ -64,7 +65,7 @@ impl Oracle for OracleBase {
             decrypter.decrypt_vec(&ciphertext).expect("bad ecb decrypt")
         } else {
             let decrypter =
-                Aes128Cbc::new_var(&self.key, &random_key()).expect("ECB decrypt panic");
+                Aes128Cbc::new_var(&self.key, &self.iv.unwrap()).expect("ECB decrypt panic");
             decrypter.decrypt_vec(&ciphertext).expect("bad cbc decrypt")
         }
     }

@@ -1,8 +1,7 @@
+extern crate cryptopal;
 extern crate hex;
 
-pub fn xor(a: &[u8], b: &[u8]) -> Vec<u8> {
-    return a.iter().zip(b.iter()).map(|(x, y)| *x ^ *y).collect();
-}
+use cryptopal::xor::xor;
 
 pub fn main() {
     let x1 = hex::decode("1c0111001f010100061a024b53535009181c").unwrap();

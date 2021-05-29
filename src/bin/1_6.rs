@@ -4,7 +4,7 @@ extern crate itertools;
 
 use itertools::Itertools;
 
-use cryptopal::util::{english_score, hamming, load_data, transpose};
+use cryptopal::util::{english_score, hamming, load_file_as_vec, transpose};
 use cryptopal::xor::{repeating_character_xor, repeating_xor};
 
 struct KeySize {
@@ -49,7 +49,7 @@ fn compute_optimal_keysize(data: &[u8]) -> u8 {
 }
 
 fn main() {
-    let input = String::from_utf8(load_data("data/6.txt")).expect("bad UTF8");
+    let input = String::from_utf8(load_file_as_vec("data/6.txt")).expect("bad UTF8");
     let data = base64::decode(input).unwrap();
     let k = compute_optimal_keysize(&data);
 

@@ -12,6 +12,7 @@ impl UnknownSuffixEcbOracle {
             prefix: vec![],
             suffix: TARGET_SUFFIX_BYTES.to_vec(),
             use_ecb: true,
+            iv: None,
         };
 
         Self { base }

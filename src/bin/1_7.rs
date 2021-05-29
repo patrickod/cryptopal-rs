@@ -2,11 +2,11 @@ extern crate base64;
 extern crate cryptopal;
 extern crate openssl;
 
-use cryptopal::util::load_data;
+use cryptopal::util::load_file_as_vec;
 use openssl::symm::{Cipher, Crypter, Mode};
 
 fn main() {
-    let input = load_data("./data/7.txt");
+    let input = load_file_as_vec("./data/7.txt");
     let data = match base64::decode(input) {
         Ok(e) => e,
         Err(e) => {

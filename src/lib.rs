@@ -2,11 +2,11 @@
 extern crate data_encoding_macro;
 extern crate aes;
 extern crate block_modes;
-extern crate hex;
-extern crate rand;
 extern crate difference;
+extern crate hex;
 #[cfg(test)]
 extern crate pretty_assertions;
+extern crate rand;
 
 pub mod oracle;
 pub mod pkcs;

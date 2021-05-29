@@ -14,11 +14,21 @@ pub struct CbcEcbOracle {
 
 impl CbcEcbOracle {
     pub fn new() -> Self {
-        let base = OracleBase {
-            key: random_key(),
-            prefix: random_padding_bytes(),
-            suffix: random_padding_bytes(),
-            use_ecb: rand::random::<bool>(),
+        let base = match rand::random::<bool>() {
+            true => OracleBase {
+                key: random_key(),
+                prefix: random_padding_bytes(),
+                suffix: random_padding_bytes(),
+                use_ecb: true,
+                iv: None,
+            },
+            false => OracleBase {
+                key: random_key(),
+                prefix: random_padding_bytes(),
+                suffix: random_padding_bytes(),
+                use_ecb: false,
+                iv: Some(random_key()),
+            },
         };
 
         Self { base }

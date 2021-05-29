@@ -6,11 +6,11 @@ extern crate openssl;
 
 use openssl::symm::{Cipher, Crypter, Mode};
 
-use cryptopal::util::load_data;
+use cryptopal::util::load_file_as_vec;
 use cryptopal::xor::xor;
 
 fn main() {
-    let input = String::from_utf8(load_data("data/10.txt")).expect("bad UTF8");
+    let input = String::from_utf8(load_file_as_vec("data/10.txt")).expect("bad UTF8");
     let data = base64::decode(input).expect("Unable to b64decode data");
     let key = "YELLOW SUBMARINE".as_bytes();
 

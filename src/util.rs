@@ -56,7 +56,7 @@ fn character_score(c: u8) -> u32 {
     };
 }
 
-pub fn load_data(path: &str) -> Vec<u8> {
+pub fn load_file_as_vec(path: &str) -> Vec<u8> {
     let file = File::open(path).unwrap();
     let reader = BufReader::new(file);
     let mut out: Vec<u8> = Vec::new();
@@ -68,7 +68,7 @@ pub fn load_data(path: &str) -> Vec<u8> {
     out
 }
 
-pub fn load_data_lines(path: &str) -> Vec<Vec<u8>> {
+pub fn load_file_as_lines(path: &str) -> Vec<Vec<u8>> {
     let file = File::open(path).expect("data not found");
     let reader = BufReader::new(file);
 
@@ -192,8 +192,8 @@ pub fn calculate_prefix_length<T: Oracle>(oracle: &T) -> Option<usize> {
 
 #[cfg(test)]
 mod tests {
-    use pretty_assertions::assert_eq;
     use oracle::*;
+    use pretty_assertions::assert_eq;
     use util::*;
     use BLOCK_SIZE;
 

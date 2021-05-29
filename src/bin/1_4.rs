@@ -1,7 +1,7 @@
 extern crate cryptopal;
 extern crate hex;
 
-use cryptopal::util::{english_score, load_data_lines};
+use cryptopal::util::{english_score, load_file_as_lines};
 use cryptopal::xor::repeating_character_xor;
 
 struct Candidate {
@@ -11,7 +11,7 @@ struct Candidate {
 }
 
 fn main() {
-    let lines = load_data_lines("./data/4.txt");
+    let lines = load_file_as_lines("./data/4.txt");
     let mut candidates: Vec<Candidate> = Vec::new();
 
     for line in lines {
