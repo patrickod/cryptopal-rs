@@ -23,10 +23,7 @@ impl CbcTargetOracle {
     }
 
     pub fn verify(&self, guess: &[u8]) -> bool {
-        match str::from_utf8(guess) {
-            Ok(s) => s.contains(";admin=true;"),
-            Err(_) => false,
-        }
+        String::from_utf8_lossy(guess).contains(";admin=true;")
     }
 }
 
