@@ -53,23 +53,23 @@ impl Oracle for OracleBase {
         );
 
         if self.use_ecb {
-            return Aes128Ecb::new_var(key, Default::default())
+            return Aes128Ecb::new_from_slices(key, Default::default())
                 .expect("ECB panic")
                 .encrypt_vec(&plaintext);
         }
-        Aes128Cbc::new_var(key, &random_key())
+        Aes128Cbc::new_from_slices(key, &random_key())
             .expect("CBC panic")
             .encrypt_vec(&plaintext)
     }
 
     fn decrypt(&self, ciphertext: &[u8]) -> Vec<u8> {
         if self.use_ecb {
-            let decrypter =
-                Aes128Ecb::new_var(&self.key, Default::default()).expect("ECB decrypt panic");
+            let decrypter = Aes128Ecb::new_from_slices(&self.key, Default::default())
+                .expect("ECB decrypt panic");
             decrypter.decrypt_vec(&ciphertext).expect("bad ecb decrypt")
         } else {
             let decrypter =
-                Aes128Cbc::new_var(&self.key, &random_key()).expect("ECB decrypt panic");
+                Aes128Cbc::new_from_slices(&self.key, &random_key()).expect("ECB decrypt panic");
             decrypter.decrypt_vec(&ciphertext).expect("bad cbc decrypt")
         }
     }

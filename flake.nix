@@ -13,7 +13,7 @@
         pkgs = import nixpkgs {
           inherit system overlays;
         };
-        rust = pkgs.rust-bin.stable.latest.default.override {
+        rust = pkgs.rust-bin.stable."latest".default.override {
           extensions = [
             "clippy-preview"
             "rust-src"
@@ -28,6 +28,7 @@
         devShell = pkgs.mkShell {
           buildInputs = [
             rust
+            pkgs.openssl
           ];
         };
       }
